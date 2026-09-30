@@ -1,0 +1,8 @@
+{
+  "name": "GitContrib - Contributor Pattern Analysis",
+  "description": "Analyze GitHub repository contributor patterns and activity characteristics based on Git History and Machine Learning clustering.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
