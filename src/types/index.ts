@@ -78,7 +78,6 @@ export interface Contributor {
   linesDeleted: number;
   totalLinesChanged: number;
   filesChanged: number;
-  // ML feature vectors (normalized 0.0 - 1.0 or natural units)
   features: {
     commitFrequency: number;     // commits / active week
     activeSpanRatio: number;     // active days / duration
@@ -124,19 +123,37 @@ export interface AnalysisReport {
   notes?: string;
 }
 
+export type UserRole = 'dosen' | 'admin';
+export type AccountStatus = 'active' | 'disabled' | 'pending';
+
 export interface User {
   id: string;
   name: string;
   email: string;
-  role: string;
+  role: UserRole;
+  status: AccountStatus;
   avatarUrl?: string;
   company?: string;
   provider?: 'email' | 'github' | 'google' | 'demo';
+  registeredAt?: string;
   lastLogin?: string;
 }
 
-export interface AuthSession {
-  user: User;
-  token: string;
-  expiresAt: number;
+export type AuthStateCode =
+  | 'logged_out'
+  | 'logged_in'
+  | 'invalid_email'
+  | 'incorrect_password'
+  | 'account_not_found'
+  | 'account_disabled'
+  | 'session_expired'
+  | 'email_not_verified'
+  | 'password_reset_successful'
+  | 'registration_successful';
+
+export interface AuthNotice {
+  type: 'error' | 'success' | 'warning' | 'info';
+  code: AuthStateCode;
+  title: string;
+  message: string;
 }

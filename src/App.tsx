@@ -11,38 +11,73 @@ import { DeepActivityAnalysis } from './components/analysis/DeepActivityAnalysis
 import { MachineLearningSection } from './components/ml/MachineLearningSection';
 import { ReportsPage } from './components/reports/ReportsPage';
 import { SettingsPage } from './components/settings/SettingsPage';
+import { AdminDashboard } from './components/admin/AdminDashboard';
 import { Repository, Contributor } from './types';
 import { MOCK_REPOSITORIES, MOCK_CONTRIBUTORS } from './data/mockRepositories';
 
 function AppContent() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, user, isLoading, setAuthNotice } = useAuth();
   const [repositories, setRepositories] = useState<Repository[]>(MOCK_REPOSITORIES);
   const [activeRepo, setActiveRepo] = useState<Repository | null>(MOCK_REPOSITORIES[0]);
   const [contributors, setContributors] = useState<Contributor[]>(MOCK_CONTRIBUTORS);
+  
+  // Current view tabs: 'landing' | 'auth' | 'pipeline' | 'dashboard' | 'contributors' | 'analysis' | 'ml' | 'reports' | 'settings' | 'admin'
   const [currentTab, setCurrentTab] = useState<string>('landing');
+  const [authSubView, setAuthSubView] = useState<'login' | 'register' | 'forgot' | 'reset'>('login');
   const [selectedContributor, setSelectedContributor] = useState<Contributor | null>(null);
 
-  // If loading auth state
+  // Loading spinner
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0d1117] flex items-center justify-center text-white">
+      <div className="min-h-screen bg-[#f6f8fa] flex items-center justify-center text-[#1f2328]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-[#238636]/30 border-t-[#3fb950] rounded-full animate-spin" />
-          <span className="text-xs text-[#8b949e] font-mono">Memuat portal GitContrib...</span>
+          <div className="w-8 h-8 border-2 border-[#167d37]/30 border-t-[#167d37] rounded-full animate-spin" />
+          <span className="text-xs text-[#57606a] font-mono">Memuat portal GitContrib...</span>
         </div>
       </div>
     );
   }
 
-  // Gatekeeper: Require login before entering the web application
-  if (!isAuthenticated) {
-    return <LoginPage />;
+  // Handle opening Auth Pages
+  const handleNavigateToAuth = (view: 'login' | 'register') => {
+    setAuthSubView(view);
+    setCurrentTab('auth');
+  };
+
+  // If user is currently on Auth View or attempting unauthenticated access to protected feature
+  if (currentTab === 'auth' || (!isAuthenticated && currentTab !== 'landing')) {
+    return (
+      <LoginPage
+        initialView={authSubView}
+        onSuccessLogin={() => {
+          if (user?.role === 'admin') {
+            setCurrentTab('admin');
+          } else {
+            setCurrentTab('dashboard');
+          }
+        }}
+        onNavigateToLanding={() => setCurrentTab('landing')}
+      />
+    );
   }
 
-  // Handle user starting analysis from landing page
+  // Role Gatekeeper: If user is logged in as ADMIN, direct them to Admin Dashboard
+  const isAdmin = isAuthenticated && user?.role === 'admin';
+
+  // Handle Dosen starting analysis from landing page
   const handleStartAnalysis = (repoUrl: string) => {
+    if (!isAuthenticated) {
+      setAuthNotice({
+        type: 'warning',
+        code: 'logged_out',
+        title: 'Pengguna Harus Login',
+        message: 'Pengguna WAJIB login atau membuat akun terlebih dahulu sebelum dapat mengakses fitur utama analisis GitContrib.'
+      });
+      handleNavigateToAuth('login');
+      return;
+    }
+
     const cleanUrl = repoUrl.toLowerCase().trim();
-    // Check if matching an existing mock repo exactly
     const existing = repositories.find(
       (r) => cleanUrl === r.url.toLowerCase() || (r.id.startsWith('repo-') && cleanUrl === `${r.owner}/${r.name}`.toLowerCase())
     );
@@ -50,7 +85,6 @@ function AppContent() {
     if (existing && !cleanUrl.includes('/') && existing.url.toLowerCase() === cleanUrl) {
       setActiveRepo(existing);
     } else {
-      // Parse repository URL or owner/name
       const cleanWithoutProto = repoUrl.replace(/^https?:\/\//i, '').replace(/^github\.com\//i, '').replace(/\.git$/i, '');
       const parts = cleanWithoutProto.split('/').filter(Boolean);
       const owner = parts[0] || 'custom-org';
@@ -107,84 +141,99 @@ function AppContent() {
   };
 
   const handleNewAnalysisClick = () => {
+    if (!isAuthenticated) {
+      handleNavigateToAuth('login');
+      return;
+    }
     setCurrentTab('landing');
   };
 
   return (
-    <div className="min-h-screen bg-[#ffffff] text-[#1f2328] flex flex-col font-sans antialiased">
-      {/* GitHub-Inspired Header */}
-      <Header
-        currentTab={currentTab}
-        onTabChange={(tab) => setCurrentTab(tab)}
-        activeRepo={activeRepo}
-        onSelectRepo={handleSelectRepo}
-        allRepos={repositories}
-        onNewAnalysisClick={handleNewAnalysisClick}
-      />
+    <div className="min-h-screen bg-[#ffffff] text-[#1f2328] flex flex-col font-sans antialiased selection:bg-[#0969da] selection:text-white">
+      {/* Show Dosen Header ONLY for Non-Admin users */}
+      {!isAdmin && (
+        <Header
+          currentTab={currentTab}
+          onTabChange={(tab) => setCurrentTab(tab)}
+          activeRepo={activeRepo}
+          onSelectRepo={handleSelectRepo}
+          allRepos={repositories}
+          onNewAnalysisClick={handleNewAnalysisClick}
+        />
+      )}
 
-      {/* Main View Port */}
+      {/* Main View Router */}
       <main className="flex-1">
-        {currentTab === 'landing' && (
-          <LandingPage
-            onStartAnalysis={handleStartAnalysis}
-            presetRepos={repositories}
-          />
-        )}
+        {/* ADMIN DASHBOARD VIEW (Dedicated Admin Header & 8 Categories) */}
+        {isAdmin ? (
+          <AdminDashboard />
+        ) : (
+          <>
+            {/* DOSEN & PUBLIC LANDING VIEWS */}
+            {currentTab === 'landing' && (
+              <LandingPage
+                onStartAnalysis={handleStartAnalysis}
+                presetRepos={repositories}
+                onNavigateToAuth={handleNavigateToAuth}
+              />
+            )}
 
-        {currentTab === 'pipeline' && activeRepo && (
-          <AnalysisProgressPage
-            key={activeRepo.id}
-            repo={activeRepo}
-            onComplete={handlePipelineComplete}
-            onBackToLanding={() => setCurrentTab('landing')}
-          />
-        )}
+            {currentTab === 'pipeline' && activeRepo && (
+              <AnalysisProgressPage
+                key={activeRepo.id}
+                repo={activeRepo}
+                onComplete={handlePipelineComplete}
+                onBackToLanding={() => setCurrentTab('landing')}
+              />
+            )}
 
-        {currentTab === 'dashboard' && activeRepo && (
-          <OverviewDashboard
-            repo={activeRepo}
-            contributors={contributors}
-            onSelectContributor={(c) => setSelectedContributor(c)}
-            onNavigateToML={() => setCurrentTab('ml')}
-            onNavigateToContributors={() => setCurrentTab('contributors')}
-          />
-        )}
+            {currentTab === 'dashboard' && activeRepo && (
+              <OverviewDashboard
+                repo={activeRepo}
+                contributors={contributors}
+                onSelectContributor={(c) => setSelectedContributor(c)}
+                onNavigateToML={() => setCurrentTab('ml')}
+                onNavigateToContributors={() => setCurrentTab('contributors')}
+              />
+            )}
 
-        {currentTab === 'contributors' && (
-          <ContributorListView
-            contributors={contributors}
-            onSelectContributor={(c) => setSelectedContributor(c)}
-          />
-        )}
+            {currentTab === 'contributors' && (
+              <ContributorListView
+                contributors={contributors}
+                onSelectContributor={(c) => setSelectedContributor(c)}
+              />
+            )}
 
-        {currentTab === 'analysis' && activeRepo && (
-          <DeepActivityAnalysis
-            repo={activeRepo}
-            contributors={contributors}
-            onSelectContributor={(c) => setSelectedContributor(c)}
-          />
-        )}
+            {currentTab === 'analysis' && activeRepo && (
+              <DeepActivityAnalysis
+                repo={activeRepo}
+                contributors={contributors}
+                onSelectContributor={(c) => setSelectedContributor(c)}
+              />
+            )}
 
-        {currentTab === 'ml' && activeRepo && (
-          <MachineLearningSection
-            repo={activeRepo}
-            contributors={contributors}
-            onSelectContributor={(c) => setSelectedContributor(c)}
-          />
-        )}
+            {currentTab === 'ml' && activeRepo && (
+              <MachineLearningSection
+                repo={activeRepo}
+                contributors={contributors}
+                onSelectContributor={(c) => setSelectedContributor(c)}
+              />
+            )}
 
-        {currentTab === 'reports' && activeRepo && (
-          <ReportsPage
-            repo={activeRepo}
-            contributors={contributors}
-          />
-        )}
+            {currentTab === 'reports' && activeRepo && (
+              <ReportsPage
+                repo={activeRepo}
+                contributors={contributors}
+              />
+            )}
 
-        {currentTab === 'settings' && activeRepo && (
-          <SettingsPage
-            repo={activeRepo}
-            onReanalyze={() => setCurrentTab('pipeline')}
-          />
+            {currentTab === 'settings' && activeRepo && (
+              <SettingsPage
+                repo={activeRepo}
+                onReanalyze={() => setCurrentTab('pipeline')}
+              />
+            )}
+          </>
         )}
       </main>
 
@@ -212,7 +261,7 @@ function AppContent() {
               onClick={() => setCurrentTab('landing')}
               className="text-[#0969da] hover:underline cursor-pointer"
             >
-              Analyze new repository
+              Analyze repository
             </button>
           </div>
         </div>

@@ -1,0 +1,54 @@
+[
+  {
+    "id": "usr-dosen-1",
+    "name": "Dr. Hendra Wijaya, M.T.",
+    "email": "dosen@gitcontrib.ac.id",
+    "password_hash": "dosen123",
+    "role": "dosen",
+    "status": "active",
+    "company": "Departemen Teknik Informatika",
+    "avatar_url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=128&auto=format&fit=crop&q=80",
+    "provider": "email",
+    "registered_at": "2026-09-30T17:48:00.359Z",
+    "last_login": "2026-09-30T17:55:09.011Z"
+  },
+  {
+    "id": "usr-admin-1",
+    "name": "Prof. Dr. Ir. Admin System",
+    "email": "admin@gitcontrib.ac.id",
+    "password_hash": "admin123",
+    "role": "admin",
+    "status": "active",
+    "company": "GitContrib System Management",
+    "avatar_url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=128&auto=format&fit=crop&q=80",
+    "provider": "email",
+    "registered_at": "2026-09-30T17:48:00.361Z",
+    "last_login": "2026-09-30T17:49:46.191Z"
+  },
+  {
+    "id": "usr-dosen-2",
+    "name": "Siti Rahmawati, S.Kom., M.Cs.",
+    "email": "siti.rahma@university.ac.id",
+    "password_hash": "dosen123",
+    "role": "dosen",
+    "status": "active",
+    "company": "Fakultas Ilmu Komputer",
+    "avatar_url": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=128&auto=format&fit=crop&q=80",
+    "provider": "email",
+    "registered_at": "2026-09-30T17:48:00.361Z",
+    "last_login": "2026-09-30T17:48:00.361Z"
+  },
+  {
+    "id": "usr-1790790964849",
+    "name": "Crist Garcia Pasaribu",
+    "email": "cristgarciapasaribu@gmail.com",
+    "password_hash": "crist123",
+    "role": "dosen",
+    "status": "active",
+    "company": "Departemen Akademik",
+    "avatar_url": "https://api.dicebear.com/7.x/identicon/svg?seed=cristgarciapasaribu@gmail.com",
+    "provider": "email",
+    "registered_at": "2026-09-30T17:56:04.850Z",
+    "last_login": "2026-09-30T17:56:25.610Z"
+  }
+]

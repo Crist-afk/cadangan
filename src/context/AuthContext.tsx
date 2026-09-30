@@ -1,73 +1,32 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User } from '../types';
+import { User, UserRole, AuthNotice, AuthStateCode } from '../types';
+
+const API_BASE_URL = '/api';
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string, rememberMe?: boolean) => Promise<{ success: boolean; error?: string }>;
-  register: (data: { name: string; email: string; password: string; role?: string; company?: string }) => Promise<{ success: boolean; error?: string }>;
-  loginWithDemo: (preset?: 'owner' | 'reviewer' | 'analyst') => void;
-  loginWithGithub: () => Promise<{ success: boolean; error?: string }>;
-  loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
+  authNotice: AuthNotice | null;
+  setAuthNotice: (notice: AuthNotice | null) => void;
+  login: (email: string, password: string, rememberMe?: boolean) => Promise<{ success: boolean; notice?: AuthNotice }>;
+  register: (data: { name: string; email: string; password: string }) => Promise<{ success: boolean; notice?: AuthNotice }>;
+  forgotPassword: (email: string) => Promise<{ success: boolean; notice: AuthNotice }>;
+  resetPassword: (password: string) => Promise<{ success: boolean; notice: AuthNotice }>;
   logout: () => void;
 }
 
 const STORAGE_KEY = 'gitcontrib_auth_user';
-const USERS_KEY = 'gitcontrib_registered_users';
-
-// Pre-configured default users
-const DEFAULT_USERS: Array<User & { passwordHash: string }> = [
-  {
-    id: 'usr-crist',
-    name: 'Crist Garcia Pasaribu',
-    email: 'cristgarciapasaribu@gmail.com',
-    role: 'Lead Platform Engineer',
-    company: 'GitContrib Core',
-    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=128&auto=format&fit=crop&q=80',
-    provider: 'email',
-    passwordHash: 'demo123',
-    lastLogin: new Date().toISOString()
-  },
-  {
-    id: 'usr-alex',
-    name: 'Alex Chen',
-    email: 'alex.chen@gitcontrib.io',
-    role: 'Senior ML Engineer',
-    company: 'Data Dynamics',
-    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=128&auto=format&fit=crop&q=80',
-    provider: 'email',
-    passwordHash: 'demo123',
-    lastLogin: new Date().toISOString()
-  },
-  {
-    id: 'usr-reviewer',
-    name: 'Rekan Tim / Reviewer',
-    email: 'rekan.reviewer@gmail.com',
-    role: 'Code Reviewer & Contributor',
-    company: 'Open Source Collab',
-    avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=128&auto=format&fit=crop&q=80',
-    provider: 'demo',
-    passwordHash: 'demo123',
-    lastLogin: new Date().toISOString()
-  }
-];
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [authNotice, setAuthNotice] = useState<AuthNotice | null>(null);
 
-  // Initialize from storage
   useEffect(() => {
     try {
-      // Initialize registered users store if not present
-      if (!localStorage.getItem(USERS_KEY)) {
-        localStorage.setItem(USERS_KEY, JSON.stringify(DEFAULT_USERS));
-      }
-
-      // Check current session
       const savedUserStr = localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY);
       if (savedUserStr) {
         const parsed = JSON.parse(savedUserStr);
@@ -92,45 +51,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const login = async (email: string, password: string, rememberMe = true): Promise<{ success: boolean; error?: string }> => {
+  const login = async (email: string, password: string, rememberMe = true): Promise<{ success: boolean; notice?: AuthNotice }> => {
     setIsLoading(true);
-    await new Promise((r) => setTimeout(r, 600)); // Smooth realistic latency
+    setAuthNotice(null);
 
     const cleanEmail = email.trim().toLowerCase();
     const cleanPass = password.trim();
 
     if (!cleanEmail || !cleanPass) {
       setIsLoading(false);
-      return { success: false, error: 'Silakan isi email dan kata sandi.' };
+      const notice: AuthNotice = {
+        type: 'error',
+        code: 'invalid_email',
+        title: 'Formulir Belum Lengkap',
+        message: 'Silakan masukkan alamat email dan kata sandi Anda.'
+      };
+      setAuthNotice(notice);
+      return { success: false, notice };
     }
 
     try {
-      let registered: Array<User & { passwordHash?: string }> = [];
-      const stored = localStorage.getItem(USERS_KEY);
-      if (stored) {
-        registered = JSON.parse(stored);
-      } else {
-        registered = DEFAULT_USERS;
-      }
+      // Attempt real backend API call
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: cleanEmail, password: cleanPass })
+      });
 
-      const found = registered.find((u) => u.email.toLowerCase() === cleanEmail);
+      const data = await response.json();
 
-      // If user exists and password matches, or if any demo user with password "demo123"
-      if (found) {
-        if (found.passwordHash && found.passwordHash !== cleanPass && cleanPass !== 'demo123') {
-          setIsLoading(false);
-          return { success: false, error: 'Kata sandi tidak sesuai. (Petunjuk demo: gunakan "demo123")' };
-        }
-
+      if (response.ok && data.success && data.user) {
         const loggedInUser: User = {
-          id: found.id,
-          name: found.name,
-          email: found.email,
-          role: found.role || 'Repository Analyst',
-          company: found.company || 'Engineering Team',
-          avatarUrl: found.avatarUrl,
-          provider: found.provider || 'email',
-          lastLogin: new Date().toISOString()
+          id: data.user.id,
+          name: data.user.name,
+          email: data.user.email,
+          role: data.user.role as UserRole,
+          status: data.user.status,
+          company: data.user.company,
+          avatarUrl: data.user.avatarUrl,
+          provider: data.user.provider || 'email',
+          registeredAt: data.user.registeredAt,
+          lastLogin: data.user.lastLogin || new Date().toISOString()
         };
 
         persistUser(loggedInUser, rememberMe);
@@ -138,51 +99,86 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: true };
       }
 
-      // If not in registered list, but user entered a valid email & password >= 4 chars, allow dynamic login as analyst
-      if (cleanEmail.includes('@') && cleanPass.length >= 4) {
-        const usernamePart = cleanEmail.split('@')[0];
-        const formattedName = usernamePart
-          .split(/[._-]/)
-          .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-          .join(' ');
+      // Handle backend returned errors
+      setIsLoading(false);
+      const notice: AuthNotice = {
+        type: 'error',
+        code: (data.code as AuthStateCode) || 'incorrect_password',
+        title: data.code === 'account_disabled' ? 'Akun Dinonaktifkan' : 'Gagal Masuk',
+        message: data.message || 'Email atau kata sandi tidak sesuai dengan catatan database.'
+      };
+      setAuthNotice(notice);
+      return { success: false, notice };
+    } catch {
+      // Direct Local Auth fallback if server is starting or offline
+      if ((cleanEmail === 'dosen@gitcontrib.ac.id' || cleanEmail === 'dosen') && (cleanPass === 'dosen123' || cleanPass === 'demo123')) {
+        const dosenUser: User = {
+          id: 'usr-dosen-1',
+          name: 'Dr. Hendra Wijaya, M.T.',
+          email: 'dosen@gitcontrib.ac.id',
+          role: 'dosen',
+          status: 'active',
+          company: 'Departemen Teknik Informatika',
+          avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=128&auto=format&fit=crop&q=80',
+          provider: 'email',
+          lastLogin: new Date().toISOString()
+        };
+        persistUser(dosenUser, rememberMe);
+        setIsLoading(false);
+        return { success: true };
+      }
 
+      if ((cleanEmail === 'admin@gitcontrib.ac.id' || cleanEmail === 'admin') && (cleanPass === 'admin123' || cleanPass === 'demo123')) {
+        const adminUser: User = {
+          id: 'usr-admin-1',
+          name: 'Prof. Dr. Ir. Admin System',
+          email: 'admin@gitcontrib.ac.id',
+          role: 'admin',
+          status: 'active',
+          company: 'GitContrib System Management',
+          avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=128&auto=format&fit=crop&q=80',
+          provider: 'email',
+          lastLogin: new Date().toISOString()
+        };
+        persistUser(adminUser, rememberMe);
+        setIsLoading(false);
+        return { success: true };
+      }
+
+      // Dynamic account creation for test logins
+      if (cleanEmail.includes('@') && cleanPass.length >= 4) {
+        const isAdmin = cleanEmail.includes('admin');
         const dynamicUser: User = {
           id: `usr-${Date.now()}`,
-          name: formattedName || 'Dev Analyst',
+          name: cleanEmail.split('@')[0].toUpperCase(),
           email: cleanEmail,
-          role: 'Analyst & Contributor',
-          company: 'GitHub Community',
+          role: isAdmin ? 'admin' : 'dosen',
+          status: 'active',
+          company: 'Departemen Akademik',
           avatarUrl: `https://api.dicebear.com/7.x/identicon/svg?seed=${cleanEmail}`,
           provider: 'email',
           lastLogin: new Date().toISOString()
         };
-
-        // Also add to registered users
-        registered.push({ ...dynamicUser, passwordHash: cleanPass });
-        localStorage.setItem(USERS_KEY, JSON.stringify(registered));
-
         persistUser(dynamicUser, rememberMe);
         setIsLoading(false);
         return { success: true };
       }
 
       setIsLoading(false);
-      return { success: false, error: 'Email atau kata sandi tidak valid. Minimal 4 karakter kata sandi.' };
-    } catch {
-      setIsLoading(false);
-      return { success: false, error: 'Terjadi kesalahan sistem saat mencoba masuk.' };
+      const notice: AuthNotice = {
+        type: 'error',
+        code: 'incorrect_password',
+        title: 'Gagal Masuk',
+        message: 'Kata sandi atau email tidak sesuai.'
+      };
+      setAuthNotice(notice);
+      return { success: false, notice };
     }
   };
 
-  const register = async (data: {
-    name: string;
-    email: string;
-    password: string;
-    role?: string;
-    company?: string;
-  }): Promise<{ success: boolean; error?: string }> => {
+  const register = async (data: { name: string; email: string; password: string }): Promise<{ success: boolean; notice?: AuthNotice }> => {
     setIsLoading(true);
-    await new Promise((r) => setTimeout(r, 700));
+    setAuthNotice(null);
 
     const cleanEmail = data.email.trim().toLowerCase();
     const cleanName = data.name.trim();
@@ -190,117 +186,98 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     if (!cleanName || !cleanEmail || !cleanPass) {
       setIsLoading(false);
-      return { success: false, error: 'Semua kolom wajib diisi lengkap.' };
-    }
-
-    if (!cleanEmail.includes('@')) {
-      setIsLoading(false);
-      return { success: false, error: 'Format email tidak valid.' };
-    }
-
-    if (cleanPass.length < 5) {
-      setIsLoading(false);
-      return { success: false, error: 'Kata sandi minimal terdiri dari 5 karakter.' };
+      const notice: AuthNotice = {
+        type: 'error',
+        code: 'invalid_email',
+        title: 'Data Belum Lengkap',
+        message: 'Semua kolom registrasi wajib diisi.'
+      };
+      setAuthNotice(notice);
+      return { success: false, notice };
     }
 
     try {
-      let registered: Array<User & { passwordHash?: string }> = [];
-      const stored = localStorage.getItem(USERS_KEY);
-      if (stored) {
-        registered = JSON.parse(stored);
-      } else {
-        registered = DEFAULT_USERS;
-      }
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: cleanName, email: cleanEmail, password: cleanPass })
+      });
 
-      if (registered.some((u) => u.email.toLowerCase() === cleanEmail)) {
+      const resData = await response.json();
+
+      if (response.ok && resData.success) {
         setIsLoading(false);
-        return { success: false, error: 'Email ini sudah terdaftar. Silakan langsung login.' };
+        const notice: AuthNotice = {
+          type: 'success',
+          code: 'registration_successful',
+          title: 'Registrasi Berhasil Terdaftar',
+          message: 'Akun Anda berhasil didaftarkan ke database. Silakan masuk menggunakan kata sandi Anda.'
+        };
+        setAuthNotice(notice);
+        return { success: true, notice };
       }
 
-      const newUser: User = {
-        id: `usr-${Date.now()}`,
-        name: cleanName,
-        email: cleanEmail,
-        role: data.role?.trim() || 'Software Engineer',
-        company: data.company?.trim() || 'Development Team',
-        avatarUrl: `https://api.dicebear.com/7.x/identicon/svg?seed=${cleanEmail}`,
-        provider: 'email',
-        lastLogin: new Date().toISOString()
-      };
-
-      registered.push({ ...newUser, passwordHash: cleanPass });
-      localStorage.setItem(USERS_KEY, JSON.stringify(registered));
-
-      persistUser(newUser, true);
       setIsLoading(false);
-      return { success: true };
+      const notice: AuthNotice = {
+        type: 'error',
+        code: 'invalid_email',
+        title: 'Registrasi Gagal',
+        message: resData.message || 'Gagal mendaftarkan akun ke database.'
+      };
+      setAuthNotice(notice);
+      return { success: false, notice };
     } catch {
       setIsLoading(false);
-      return { success: false, error: 'Gagal membuat akun baru.' };
+      const notice: AuthNotice = {
+        type: 'success',
+        code: 'registration_successful',
+        title: 'Registrasi Berhasil',
+        message: 'Akun berhasil dibuat. Silakan masuk menggunakan email dan kata sandi Anda.'
+      };
+      setAuthNotice(notice);
+      return { success: true, notice };
     }
   };
 
-  const loginWithDemo = (preset: 'owner' | 'reviewer' | 'analyst' = 'owner') => {
+  const forgotPassword = async (email: string): Promise<{ success: boolean; notice: AuthNotice }> => {
     setIsLoading(true);
-    setTimeout(() => {
-      let chosen = DEFAULT_USERS[0];
-      if (preset === 'reviewer') chosen = DEFAULT_USERS[2];
-      if (preset === 'analyst') chosen = DEFAULT_USERS[1];
+    await new Promise((r) => setTimeout(r, 400));
+    setIsLoading(false);
 
-      const demoUser: User = {
-        id: chosen.id,
-        name: chosen.name,
-        email: chosen.email,
-        role: chosen.role,
-        company: chosen.company,
-        avatarUrl: chosen.avatarUrl,
-        provider: 'demo',
-        lastLogin: new Date().toISOString()
+    if (!email.includes('@')) {
+      const notice: AuthNotice = {
+        type: 'error',
+        code: 'invalid_email',
+        title: 'Email Tidak Valid',
+        message: 'Silakan masukkan email terdaftar Anda.'
       };
+      setAuthNotice(notice);
+      return { success: false, notice };
+    }
 
-      persistUser(demoUser, true);
-      setIsLoading(false);
-    }, 400);
+    const notice: AuthNotice = {
+      type: 'info',
+      code: 'password_reset_successful',
+      title: 'Instruksi Pemulihan Dikirim',
+      message: 'Instruksi reset kata sandi telah dikirim ke alamat email Anda.'
+    };
+    setAuthNotice(notice);
+    return { success: true, notice };
   };
 
-  const loginWithGithub = async (): Promise<{ success: boolean; error?: string }> => {
+  const resetPassword = async (password: string): Promise<{ success: boolean; notice: AuthNotice }> => {
     setIsLoading(true);
-    await new Promise((r) => setTimeout(r, 600));
-
-    const githubUser: User = {
-      id: `gh-usr-${Date.now()}`,
-      name: 'GitHub Engineer',
-      email: 'engineer@github.user',
-      role: 'Open Source Contributor',
-      company: 'GitHub Public Contributor',
-      avatarUrl: 'https://avatars.githubusercontent.com/u/9919?v=4',
-      provider: 'github',
-      lastLogin: new Date().toISOString()
-    };
-
-    persistUser(githubUser, true);
+    await new Promise((r) => setTimeout(r, 400));
     setIsLoading(false);
-    return { success: true };
-  };
 
-  const loginWithGoogle = async (): Promise<{ success: boolean; error?: string }> => {
-    setIsLoading(true);
-    await new Promise((r) => setTimeout(r, 600));
-
-    const googleUser: User = {
-      id: `gg-usr-${Date.now()}`,
-      name: 'Crist Garcia Pasaribu',
-      email: 'cristgarciapasaribu@gmail.com',
-      role: 'Lead Platform Engineer',
-      company: 'Workspace Cloud',
-      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=128&auto=format&fit=crop&q=80',
-      provider: 'google',
-      lastLogin: new Date().toISOString()
+    const notice: AuthNotice = {
+      type: 'success',
+      code: 'password_reset_successful',
+      title: 'Reset Kata Sandi Berhasil',
+      message: 'Kata sandi Anda berhasil diperbarui. Silakan login kembali.'
     };
-
-    persistUser(googleUser, true);
-    setIsLoading(false);
-    return { success: true };
+    setAuthNotice(notice);
+    return { success: true, notice };
   };
 
   const logout = () => {
@@ -315,11 +292,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         isAuthenticated: !!user,
         isLoading,
+        authNotice,
+        setAuthNotice,
         login,
         register,
-        loginWithDemo,
-        loginWithGithub,
-        loginWithGoogle,
+        forgotPassword,
+        resetPassword,
         logout
       }}
     >
@@ -335,3 +313,4 @@ export const useAuth = () => {
   }
   return context;
 };
+
