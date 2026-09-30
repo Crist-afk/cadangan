@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { GitCommit, Calendar, Clock, GitPullRequest, Code, FolderGit2, BarChart3 } from 'lucide-react';
 import { Repository, Contributor } from '../../types';
+import { StaggerContainer } from '../animations/StaggerContainer';
 
 interface DeepActivityAnalysisProps {
   repo: Repository;

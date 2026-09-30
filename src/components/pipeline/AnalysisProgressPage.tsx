@@ -24,6 +24,7 @@ import {
   GitHubApiError
 } from '../../services/githubService';
 import { MOCK_CONTRIBUTORS } from '../../data/mockRepositories';
+import { AnimatedProgressBar } from '../animations/AnimatedProgressBar';
 
 interface AnalysisProgressPageProps {
   repo: Repository;
@@ -389,15 +390,12 @@ export const AnalysisProgressPage: React.FC<AnalysisProgressPageProps> = ({
       {/* Progress Bar & Speed Controls */}
       <div className="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3 flex-1">
-          <div className="w-full bg-[#f6f8fa] border border-[#d0d7de] rounded-full h-2.5 overflow-hidden">
-            <div
-              className="bg-[#1a7f37] h-2.5 rounded-full transition-all duration-300"
-              style={{ width: `${progressPercentage}%` }}
-            ></div>
-          </div>
-          <span className="text-xs font-mono font-semibold text-[#1f2328] w-12 text-right tabular-nums">
-            {progressPercentage}%
-          </span>
+          <AnimatedProgressBar
+            value={progressPercentage}
+            showLabel
+            barColor="bg-[#1a7f37]"
+            height="h-2.5"
+          />
         </div>
 
         <div className="flex items-center gap-2">

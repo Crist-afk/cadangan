@@ -44,6 +44,9 @@ import {
 } from '../../data/mockAdminData';
 import { User, UserRole, AccountStatus } from '../../types';
 import { useAuth } from '../../context/AuthContext';
+import { StaggerContainer } from '../animations/StaggerContainer';
+import { AnimatedProgressBar } from '../animations/AnimatedProgressBar';
+import { AnimatedDropdown } from '../animations/AnimatedDropdown';
 
 export type AdminTab =
   | 'overview'
@@ -250,34 +253,33 @@ export const AdminDashboard: React.FC = () => {
                   <ChevronDown className="w-3.5 h-3.5 text-[#9ca3af]" />
                 </button>
 
-                {showUserMenu && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setShowUserMenu(false)} />
-                    <div className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-xl border border-[#e5e7eb] py-1.5 z-50 text-xs text-[#111827]">
-                      <div className="px-3.5 py-2 border-b border-[#f3f4f6] bg-[#f9fafb]">
-                        <p className="font-bold text-[#111827] truncate">{user?.name || 'Admin System'}</p>
-                        <p className="text-[#6b7280] text-[11px] truncate mt-0.5">{user?.email}</p>
-                        <span className="inline-block mt-1 text-[10px] font-bold bg-[#dbeafe] text-[#1e40af] px-2 py-0.5 rounded-full uppercase">
-                          ADMINISTRATOR
-                        </span>
-                      </div>
+                <AnimatedDropdown
+                  isOpen={showUserMenu}
+                  onClose={() => setShowUserMenu(false)}
+                  className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-xl border border-[#e5e7eb] py-1.5 z-50 text-xs text-[#111827]"
+                >
+                  <div className="px-3.5 py-2 border-b border-[#f3f4f6] bg-[#f9fafb]">
+                    <p className="font-bold text-[#111827] truncate">{user?.name || 'Admin System'}</p>
+                    <p className="text-[#6b7280] text-[11px] truncate mt-0.5">{user?.email}</p>
+                    <span className="inline-block mt-1 text-[10px] font-bold bg-[#dbeafe] text-[#1e40af] px-2 py-0.5 rounded-full uppercase">
+                      ADMINISTRATOR
+                    </span>
+                  </div>
 
-                      <div className="pt-1">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setShowUserMenu(false);
-                            logout();
-                          }}
-                          className="w-full text-left px-3.5 py-2 text-[#dc2626] hover:bg-[#fef2f2] flex items-center gap-2 font-medium cursor-pointer"
-                        >
-                          <LogOut className="w-3.5 h-3.5 text-[#dc2626]" />
-                          <span>Keluar (Logout)</span>
-                        </button>
-                      </div>
-                    </div>
-                  </>
-                )}
+                  <div className="pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        logout();
+                      }}
+                      className="w-full text-left px-3.5 py-2 text-[#dc2626] hover:bg-[#fef2f2] flex items-center gap-2 font-medium cursor-pointer"
+                    >
+                      <LogOut className="w-3.5 h-3.5 text-[#dc2626]" />
+                      <span>Keluar (Logout)</span>
+                    </button>
+                  </div>
+                </AnimatedDropdown>
               </div>
             </div>
 
@@ -290,7 +292,7 @@ export const AdminDashboard: React.FC = () => {
         <div className="max-w-7xl mx-auto flex items-center gap-1 overflow-x-auto text-xs font-medium py-1">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`flex items-center gap-2 px-3.5 py-2.5 border-b-2 font-semibold transition-colors cursor-pointer shrink-0 ${
+            className={`nav-item flex items-center gap-2 px-3.5 py-2.5 border-b-2 font-semibold cursor-pointer shrink-0 ${
               activeTab === 'overview'
                 ? 'border-[#2563eb] text-[#2563eb] bg-white rounded-t'
                 : 'border-transparent text-[#4b5563] hover:text-[#111827]'
@@ -317,7 +319,7 @@ export const AdminDashboard: React.FC = () => {
 
           <button
             onClick={() => setActiveTab('github-api')}
-            className={`flex items-center gap-2 px-3.5 py-2.5 border-b-2 font-semibold transition-colors cursor-pointer shrink-0 ${
+            className={`nav-item flex items-center gap-2 px-3.5 py-2.5 border-b-2 font-semibold cursor-pointer shrink-0 ${
               activeTab === 'github-api'
                 ? 'border-[#2563eb] text-[#2563eb] bg-white rounded-t'
                 : 'border-transparent text-[#4b5563] hover:text-[#111827]'
@@ -329,7 +331,7 @@ export const AdminDashboard: React.FC = () => {
 
           <button
             onClick={() => setActiveTab('ai-ml')}
-            className={`flex items-center gap-2 px-3.5 py-2.5 border-b-2 font-semibold transition-colors cursor-pointer shrink-0 ${
+            className={`nav-item flex items-center gap-2 px-3.5 py-2.5 border-b-2 font-semibold cursor-pointer shrink-0 ${
               activeTab === 'ai-ml'
                 ? 'border-[#2563eb] text-[#2563eb] bg-white rounded-t'
                 : 'border-transparent text-[#4b5563] hover:text-[#111827]'
@@ -341,7 +343,7 @@ export const AdminDashboard: React.FC = () => {
 
           <button
             onClick={() => setActiveTab('monitoring')}
-            className={`flex items-center gap-2 px-3.5 py-2.5 border-b-2 font-semibold transition-colors cursor-pointer shrink-0 ${
+            className={`nav-item flex items-center gap-2 px-3.5 py-2.5 border-b-2 font-semibold cursor-pointer shrink-0 ${
               activeTab === 'monitoring'
                 ? 'border-[#2563eb] text-[#2563eb] bg-white rounded-t'
                 : 'border-transparent text-[#4b5563] hover:text-[#111827]'
@@ -356,7 +358,7 @@ export const AdminDashboard: React.FC = () => {
 
           <button
             onClick={() => setActiveTab('history')}
-            className={`flex items-center gap-2 px-3.5 py-2.5 border-b-2 font-semibold transition-colors cursor-pointer shrink-0 ${
+            className={`nav-item flex items-center gap-2 px-3.5 py-2.5 border-b-2 font-semibold cursor-pointer shrink-0 ${
               activeTab === 'history'
                 ? 'border-[#2563eb] text-[#2563eb] bg-white rounded-t'
                 : 'border-transparent text-[#4b5563] hover:text-[#111827]'
@@ -368,7 +370,7 @@ export const AdminDashboard: React.FC = () => {
 
           <button
             onClick={() => setActiveTab('logs')}
-            className={`flex items-center gap-2 px-3.5 py-2.5 border-b-2 font-semibold transition-colors cursor-pointer shrink-0 ${
+            className={`nav-item flex items-center gap-2 px-3.5 py-2.5 border-b-2 font-semibold cursor-pointer shrink-0 ${
               activeTab === 'logs'
                 ? 'border-[#2563eb] text-[#2563eb] bg-white rounded-t'
                 : 'border-transparent text-[#4b5563] hover:text-[#111827]'
@@ -383,7 +385,7 @@ export const AdminDashboard: React.FC = () => {
 
           <button
             onClick={() => setActiveTab('audit')}
-            className={`flex items-center gap-2 px-3.5 py-2.5 border-b-2 font-semibold transition-colors cursor-pointer shrink-0 ${
+            className={`nav-item flex items-center gap-2 px-3.5 py-2.5 border-b-2 font-semibold cursor-pointer shrink-0 ${
               activeTab === 'audit'
                 ? 'border-[#2563eb] text-[#2563eb] bg-white rounded-t'
                 : 'border-transparent text-[#4b5563] hover:text-[#111827]'
@@ -395,7 +397,7 @@ export const AdminDashboard: React.FC = () => {
 
           <button
             onClick={() => setActiveTab('config')}
-            className={`flex items-center gap-2 px-3.5 py-2.5 border-b-2 font-semibold transition-colors cursor-pointer shrink-0 ${
+            className={`nav-item flex items-center gap-2 px-3.5 py-2.5 border-b-2 font-semibold cursor-pointer shrink-0 ${
               activeTab === 'config'
                 ? 'border-[#2563eb] text-[#2563eb] bg-white rounded-t'
                 : 'border-transparent text-[#4b5563] hover:text-[#111827]'
@@ -412,10 +414,10 @@ export const AdminDashboard: React.FC = () => {
 
         {/* ----------------- TAB OVERVIEW ----------------- */}
         {activeTab === 'overview' && (
-          <div className="space-y-6">
+          <div key="overview" className="page-enter space-y-6">
             {/* Metric KPI Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="p-4 rounded-md border border-[#d0d7de] bg-[#f6f8fa]">
+              <div className="stagger-item p-4 rounded-md border border-[#d0d7de] bg-[#f6f8fa]" style={{ animationDelay: '0ms' }}>
                 <div className="text-xs text-[#57606a] font-medium">Total Users</div>
                 <div className="text-2xl font-bold text-[#1f2328] mt-1">{users.length}</div>
                 <div className="text-[11px] text-[#1a7f37] mt-1 font-medium">
@@ -423,7 +425,7 @@ export const AdminDashboard: React.FC = () => {
                 </div>
               </div>
 
-              <div className="p-4 rounded-md border border-[#d0d7de] bg-[#f6f8fa]">
+              <div className="stagger-item p-4 rounded-md border border-[#d0d7de] bg-[#f6f8fa]" style={{ animationDelay: '50ms' }}>
                 <div className="text-xs text-[#57606a] font-medium">Analyses Today</div>
                 <div className="text-2xl font-bold text-[#1f2328] mt-1">12</div>
                 <div className="text-[11px] text-[#0969da] mt-1 font-medium">
@@ -431,7 +433,7 @@ export const AdminDashboard: React.FC = () => {
                 </div>
               </div>
 
-              <div className="p-4 rounded-md border border-[#d0d7de] bg-[#f6f8fa]">
+              <div className="stagger-item p-4 rounded-md border border-[#d0d7de] bg-[#f6f8fa]" style={{ animationDelay: '100ms' }}>
                 <div className="text-xs text-[#57606a] font-medium">GitHub API Rate Limit</div>
                 <div className="text-2xl font-bold text-[#1f2328] mt-1">4,250</div>
                 <div className="text-[11px] text-[#57606a] mt-1 font-mono">
@@ -439,7 +441,7 @@ export const AdminDashboard: React.FC = () => {
                 </div>
               </div>
 
-              <div className="p-4 rounded-md border border-[#d0d7de] bg-[#f6f8fa]">
+              <div className="stagger-item p-4 rounded-md border border-[#d0d7de] bg-[#f6f8fa]" style={{ animationDelay: '150ms' }}>
                 <div className="text-xs text-[#57606a] font-medium">AI ML Cluster Model</div>
                 <div className="text-2xl font-bold text-[#1f2328] mt-1">v2.1.0</div>
                 <div className="text-[11px] text-[#1a7f37] mt-1 font-medium">
@@ -483,7 +485,13 @@ export const AdminDashboard: React.FC = () => {
                         <span>Process Step: {item.currentStepIndex}/7</span>
                       </div>
                       <div className="mt-2 w-full bg-[#d0d7de] h-1.5 rounded-full overflow-hidden">
-                        <div className="bg-[#0969da] h-full" style={{ width: `${item.progressPercentage}%` }}></div>
+                        <AnimatedProgressBar
+                          value={item.progressPercentage}
+                          barColor="bg-[#0969da]"
+                          bgColor="bg-[#d0d7de]"
+                          height="h-1.5"
+                          duration={400}
+                        />
                       </div>
                     </div>
                   ))}
@@ -524,7 +532,7 @@ export const AdminDashboard: React.FC = () => {
 
         {/* ----------------- TAB 1: USER MANAGEMENT ----------------- */}
         {activeTab === 'users' && (
-          <div className="space-y-4">
+          <div key="users" className="page-enter space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#f6f8fa] p-3 border border-[#d0d7de] rounded-md">
               <div className="flex items-center gap-2 flex-1 max-w-md">
                 <div className="relative w-full">
@@ -624,7 +632,7 @@ export const AdminDashboard: React.FC = () => {
 
         {/* ----------------- TAB 2: GITHUB API MANAGEMENT ----------------- */}
         {activeTab === 'github-api' && (
-          <div className="space-y-6">
+          <div key="github-api" className="page-enter space-y-6">
             <div className="p-5 border border-[#d0d7de] rounded-md bg-white space-y-4">
               <div className="flex items-center justify-between border-b border-[#d0d7de] pb-3">
                 <div>
@@ -713,7 +721,7 @@ export const AdminDashboard: React.FC = () => {
 
         {/* ----------------- TAB 3: AI / ML MANAGEMENT ----------------- */}
         {activeTab === 'ai-ml' && (
-          <div className="space-y-6">
+          <div key="ai-ml" className="page-enter space-y-6">
             <div className="p-5 border border-[#d0d7de] rounded-md bg-white space-y-4">
               <div className="flex items-center justify-between border-b border-[#d0d7de] pb-3">
                 <div>
@@ -790,7 +798,7 @@ export const AdminDashboard: React.FC = () => {
 
         {/* ----------------- TAB 4: ANALYSIS MONITORING ----------------- */}
         {activeTab === 'monitoring' && (
-          <div className="space-y-4">
+          <div key="monitoring" className="page-enter space-y-4">
             <h3 className="text-sm font-bold text-[#1f2328]">Pemantauan Analisis Berjalan (Real-Time Monitoring)</h3>
             <div className="border border-[#d0d7de] rounded-md overflow-hidden bg-white">
               <table className="w-full text-left border-collapse text-xs">
@@ -833,7 +841,7 @@ export const AdminDashboard: React.FC = () => {
 
         {/* ----------------- TAB 5: ANALYSIS HISTORY ----------------- */}
         {activeTab === 'history' && (
-          <div className="space-y-4">
+          <div key="history" className="page-enter space-y-4">
             <h3 className="text-sm font-bold text-[#1f2328]">Riwayat Seluruh Analisis Repositori</h3>
             <div className="border border-[#d0d7de] rounded-md overflow-hidden bg-white">
               <table className="w-full text-left border-collapse text-xs">
@@ -876,7 +884,7 @@ export const AdminDashboard: React.FC = () => {
 
         {/* ----------------- TAB 6: ERROR & SYSTEM LOGS ----------------- */}
         {activeTab === 'logs' && (
-          <div className="space-y-4">
+          <div key="logs" className="page-enter space-y-4">
             <h3 className="text-sm font-bold text-[#1f2328]">Error & System Logs (Kategoris)</h3>
             <div className="border border-[#d0d7de] rounded-md overflow-hidden bg-white">
               <table className="w-full text-left border-collapse text-xs">
@@ -913,7 +921,7 @@ export const AdminDashboard: React.FC = () => {
 
         {/* ----------------- TAB 7: AUDIT LOG ----------------- */}
         {activeTab === 'audit' && (
-          <div className="space-y-4">
+          <div key="audit" className="page-enter space-y-4">
             <h3 className="text-sm font-bold text-[#1f2328]">Audit Log Aktivitas Sistem</h3>
             <div className="border border-[#d0d7de] rounded-md overflow-hidden bg-white">
               <table className="w-full text-left border-collapse text-xs">
@@ -944,7 +952,7 @@ export const AdminDashboard: React.FC = () => {
 
         {/* ----------------- TAB 8: SYSTEM CONFIGURATION ----------------- */}
         {activeTab === 'config' && (
-          <div className="space-y-6">
+          <div key="config" className="page-enter space-y-6">
             <div className="p-5 border border-[#d0d7de] rounded-md bg-white space-y-4">
               <h3 className="text-sm font-bold text-[#1f2328] border-b border-[#d0d7de] pb-2">Pengaturan Umum & Sistem</h3>
               

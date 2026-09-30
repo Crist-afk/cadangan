@@ -3,6 +3,7 @@ import { Settings, Sliders, CheckCircle2, Shield, RotateCcw, Save, Key, External
 import { Repository } from '../../types';
 import { getStoredGitHubToken, setStoredGitHubToken } from '../../services/githubService';
 import { useAuth } from '../../context/AuthContext';
+import { StaggerContainer } from '../animations/StaggerContainer';
 
 interface SettingsPageProps {
   repo: Repository;

@@ -12,6 +12,7 @@ import { MachineLearningSection } from './components/ml/MachineLearningSection';
 import { ReportsPage } from './components/reports/ReportsPage';
 import { SettingsPage } from './components/settings/SettingsPage';
 import { AdminDashboard } from './components/admin/AdminDashboard';
+import { PageTransition } from './components/animations/PageTransition';
 import { Repository, Contributor } from './types';
 import { MOCK_REPOSITORIES, MOCK_CONTRIBUTORS } from './data/mockRepositories';
 
@@ -166,9 +167,11 @@ function AppContent() {
       <main className="flex-1">
         {/* ADMIN DASHBOARD VIEW (Dedicated Admin Header & 8 Categories) */}
         {isAdmin ? (
-          <AdminDashboard />
+          <PageTransition transitionKey="admin">
+            <AdminDashboard />
+          </PageTransition>
         ) : (
-          <>
+          <PageTransition transitionKey={currentTab}>
             {/* DOSEN & PUBLIC LANDING VIEWS */}
             {currentTab === 'landing' && (
               <LandingPage
@@ -233,7 +236,7 @@ function AppContent() {
                 onReanalyze={() => setCurrentTab('pipeline')}
               />
             )}
-          </>
+          </PageTransition>
         )}
       </main>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Eye,
   EyeOff,
@@ -34,6 +34,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   } = useAuth();
 
   const [authView, setAuthView] = useState<'login' | 'register' | 'forgot' | 'reset'>(initialView);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [displayView, setDisplayView] = useState(initialView);
 
   // Form Fields
   const [email, setEmail] = useState('');
@@ -44,6 +46,18 @@ export const LoginPage: React.FC<LoginPageProps> = ({
 
   // Local feedback state
   const [localError, setLocalError] = useState<string | null>(null);
+
+  // Handle view transitions
+  useEffect(() => {
+    if (authView !== displayView) {
+      setIsTransitioning(true);
+      const timeout = setTimeout(() => {
+        setDisplayView(authView);
+        setIsTransitioning(false);
+      }, 200);
+      return () => clearTimeout(timeout);
+    }
+  }, [authView, displayView]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,7 +134,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({
         <div className="w-full max-w-md">
           
           {/* Form Card Container */}
-          <div className="bg-[#ffffff] border border-[#d0d7de] rounded-lg p-6 sm:p-8 shadow-2xs">
+          <div 
+            className="bg-[#ffffff] border border-[#d0d7de] rounded-lg p-6 sm:p-8 shadow-2xs"
+            style={{
+              opacity: isTransitioning ? 0 : 1,
+              transform: isTransitioning ? 'translateX(-8px)' : 'translateX(0)',
+              transition: 'opacity 200ms ease-out, transform 200ms ease-out',
+            }}
+          >
             
             {/* Header / Logo */}
             <div className="text-center mb-6">

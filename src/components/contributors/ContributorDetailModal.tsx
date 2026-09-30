@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, GitCommit, Calendar, Clock, PlusCircle, MinusCircle, FileText, CheckCircle2, Layers, BarChart2 } from 'lucide-react';
 import { Contributor, MLCluster } from '../../types';
 import { ML_CLUSTERS } from '../../data/mockRepositories';
@@ -14,16 +14,48 @@ export const ContributorDetailModal: React.FC<ContributorDetailModalProps> = ({
   onClose,
 }) => {
   const [activeTab, setActiveTab] = useState<'timeline' | 'characteristics' | 'punchcard'>('timeline');
+  const [isVisible, setIsVisible] = useState(false);
+  const [shouldRender, setShouldRender] = useState(false);
 
-  if (!contributor) return null;
+  useEffect(() => {
+    if (contributor) {
+      setShouldRender(true);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIsVisible(true);
+        });
+      });
+    } else {
+      setIsVisible(false);
+      const timeout = setTimeout(() => {
+        setShouldRender(false);
+      }, 200);
+      return () => clearTimeout(timeout);
+    }
+  }, [contributor]);
+
+  if (!contributor || !shouldRender) return null;
 
   const cluster = ML_CLUSTERS[contributor.clusterId];
 
   const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/40 flex items-center justify-center p-3 sm:p-6 animate-fade-in">
-      <div className="bg-[#ffffff] border border-[#d0d7de] rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col shadow-xl overflow-hidden">
+    <div 
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/40 flex items-center justify-center p-3 sm:p-6"
+      style={{
+        opacity: isVisible ? 1 : 0,
+        transition: 'opacity 200ms ease-out',
+      }}
+    >
+      <div 
+        className="bg-[#ffffff] border border-[#d0d7de] rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col shadow-xl overflow-hidden"
+        style={{
+          opacity: isVisible ? 1 : 0,
+          transform: isVisible ? 'scale(1) translateY(0)' : 'scale(0.98) translateY(4px)',
+          transition: 'opacity 220ms ease-out, transform 220ms ease-out',
+        }}
+      >
         {/* Modal Header */}
         <div className="p-4 sm:p-5 border-b border-[#d0d7de] bg-[#f6f8fa] flex items-start justify-between gap-4">
           <div className="flex items-start gap-3.5">

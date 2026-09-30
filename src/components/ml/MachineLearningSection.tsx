@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Cpu, Layers, Download, CheckCircle2, Info, ArrowRight, Table, BarChart2 } from 'lucide-react';
 import { Repository, Contributor, MLCluster } from '../../types';
 import { getClustersWithCounts } from '../../data/mockRepositories';
+import { StaggerContainer } from '../animations/StaggerContainer';
 
 interface MachineLearningSectionProps {
   repo: Repository;
@@ -170,8 +171,12 @@ export const MachineLearningSection: React.FC<MachineLearningSectionProps> = ({
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {featuresMeta.map((feat) => (
-            <div key={feat.id} className="p-3.5 border border-[#d0d7de] rounded-md bg-[#f6f8fa]">
+          {featuresMeta.map((feat, index) => (
+            <div 
+              key={feat.id} 
+              className="stagger-item p-3.5 border border-[#d0d7de] rounded-md bg-[#f6f8fa]"
+              style={{ animationDelay: `${index * 50}ms` }}
+            >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-[#1f2328]">{feat.name}</span>
                 <span className="text-[10px] font-mono text-[#57606a] bg-white border border-[#d0d7de] px-1.5 py-0.5 rounded">

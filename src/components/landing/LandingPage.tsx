@@ -3,6 +3,7 @@ import { GitBranch, GitCommit, Search, ArrowRight, Key, Check, Lock, LogIn, User
 import { Repository } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import { getStoredGitHubToken, setStoredGitHubToken } from '../../services/githubService';
+import { StaggerContainer } from '../animations/StaggerContainer';
 
 interface LandingPageProps {
   onStartAnalysis: (repoUrl: string) => void;
@@ -56,16 +57,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* Hero Section */}
       <section className="border-b border-[#d0d7de] pt-12 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 text-xs font-medium text-[#1f2328] bg-[#f6f8fa] border border-[#d0d7de] rounded-md mb-6">
+          <div className="stagger-item inline-flex items-center gap-2 px-2.5 py-1 text-xs font-medium text-[#1f2328] bg-[#f6f8fa] border border-[#d0d7de] rounded-md mb-6" style={{ animationDelay: '0ms' }}>
             <span className="w-2 h-2 rounded-full bg-[#1a7f37]"></span>
             <span>Git History Analytics Engine & Contributor Clustering</span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#1f2328] text-balance">
+          <h1 className="stagger-item text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#1f2328] text-balance" style={{ animationDelay: '50ms' }}>
             Understand Contribution Patterns from Git History
           </h1>
 
-          <p className="mt-4 text-base sm:text-lg text-[#57606a] leading-relaxed max-w-2xl">
+          <p className="stagger-item mt-4 text-base sm:text-lg text-[#57606a] leading-relaxed max-w-2xl" style={{ animationDelay: '100ms' }}>
             GitContrib menganalisis histori GitHub Repository untuk membantu memahami pola aktivitas contributor berdasarkan karakteristik Git objektif dan pengelompokan Machine Learning.
           </p>
 

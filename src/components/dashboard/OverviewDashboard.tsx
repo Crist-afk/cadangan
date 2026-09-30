@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { GitCommit, Users, Calendar, Clock, PlusCircle, MinusCircle, FileCode, Filter, ChevronRight, Layers, BarChart2 } from 'lucide-react';
 import { Repository, Contributor, MLCluster } from '../../types';
 import { getClustersWithCounts } from '../../data/mockRepositories';
+import { StaggerContainer } from '../animations/StaggerContainer';
+import { AnimatedProgressBar } from '../animations/AnimatedProgressBar';
 
 interface OverviewDashboardProps {
   repo: Repository;
@@ -62,54 +64,56 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
   return (
     <div className="bg-[#ffffff] min-h-[calc(100vh-3.5rem)] py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
       {/* Page Title & Scope Filter */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#d0d7de]">
-        <div>
-          <h2 className="text-xl font-bold tracking-tight text-[#1f2328]">
-            Contributor Analysis Dashboard
-          </h2>
-          <p className="text-xs sm:text-sm text-[#57606a] mt-0.5">
-            Git history statistical decomposition across <span className="font-mono font-medium text-[#1f2328]">{contributors.length} contributors</span> and <span className="font-mono font-medium text-[#1f2328]">{repo.totalCommits.toLocaleString()} commits</span>.
-          </p>
-        </div>
+      <div className="stagger-item" style={{ animationDelay: '0ms' }}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#d0d7de]">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight text-[#1f2328]">
+              Contributor Analysis Dashboard
+            </h2>
+            <p className="text-xs sm:text-sm text-[#57606a] mt-0.5">
+              Git history statistical decomposition across <span className="font-mono font-medium text-[#1f2328]">{contributors.length} contributors</span> and <span className="font-mono font-medium text-[#1f2328]">{repo.totalCommits.toLocaleString()} commits</span>.
+            </p>
+          </div>
 
-        {/* Time Window Selector */}
-        <div className="flex items-center gap-1 p-1 bg-[#f6f8fa] border border-[#d0d7de] rounded-md text-xs font-medium">
-          <button
-            onClick={() => setTimeRange('all')}
-            className={`px-3 py-1 rounded transition-colors cursor-pointer ${
-              timeRange === 'all'
-                ? 'bg-white text-[#1f2328] font-semibold shadow-2xs'
-                : 'text-[#57606a] hover:text-[#1f2328]'
-            }`}
-          >
-            All Time (365d)
-          </button>
-          <button
-            onClick={() => setTimeRange('90d')}
-            className={`px-3 py-1 rounded transition-colors cursor-pointer ${
-              timeRange === '90d'
-                ? 'bg-white text-[#1f2328] font-semibold shadow-2xs'
-                : 'text-[#57606a] hover:text-[#1f2328]'
-            }`}
-          >
-            Last 90 Days
-          </button>
-          <button
-            onClick={() => setTimeRange('30d')}
-            className={`px-3 py-1 rounded transition-colors cursor-pointer ${
-              timeRange === '30d'
-                ? 'bg-white text-[#1f2328] font-semibold shadow-2xs'
-                : 'text-[#57606a] hover:text-[#1f2328]'
-            }`}
-          >
-            Last 30 Days
-          </button>
+          {/* Time Window Selector */}
+          <div className="flex items-center gap-1 p-1 bg-[#f6f8fa] border border-[#d0d7de] rounded-md text-xs font-medium">
+            <button
+              onClick={() => setTimeRange('all')}
+              className={`px-3 py-1 rounded transition-colors cursor-pointer ${
+                timeRange === 'all'
+                  ? 'bg-white text-[#1f2328] font-semibold shadow-2xs'
+                  : 'text-[#57606a] hover:text-[#1f2328]'
+              }`}
+            >
+              All Time (365d)
+            </button>
+            <button
+              onClick={() => setTimeRange('90d')}
+              className={`px-3 py-1 rounded transition-colors cursor-pointer ${
+                timeRange === '90d'
+                  ? 'bg-white text-[#1f2328] font-semibold shadow-2xs'
+                  : 'text-[#57606a] hover:text-[#1f2328]'
+              }`}
+            >
+              Last 90 Days
+            </button>
+            <button
+              onClick={() => setTimeRange('30d')}
+              className={`px-3 py-1 rounded transition-colors cursor-pointer ${
+                timeRange === '30d'
+                  ? 'bg-white text-[#1f2328] font-semibold shadow-2xs'
+                  : 'text-[#57606a] hover:text-[#1f2328]'
+              }`}
+            >
+              Last 30 Days
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Key Metrics: Non-Gamified Data Analysis per User Instruction */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
-        <div className="p-3.5 bg-[#f6f8fa] border border-[#d0d7de] rounded-md">
+        <div className="stagger-item p-3.5 bg-[#f6f8fa] border border-[#d0d7de] rounded-md" style={{ animationDelay: '50ms' }}>
           <span className="text-[11px] font-medium text-[#57606a] block">Total Contributors</span>
           <div className="mt-1 text-xl font-bold font-mono text-[#1f2328] tabular-nums">
             {repo.totalContributors}
@@ -117,7 +121,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
           <span className="text-[10px] text-[#57606a] mt-0.5 block">Unique author emails</span>
         </div>
 
-        <div className="p-3.5 bg-[#f6f8fa] border border-[#d0d7de] rounded-md">
+        <div className="stagger-item p-3.5 bg-[#f6f8fa] border border-[#d0d7de] rounded-md" style={{ animationDelay: '100ms' }}>
           <span className="text-[11px] font-medium text-[#57606a] block">Total Commits</span>
           <div className="mt-1 text-xl font-bold font-mono text-[#1f2328] tabular-nums">
             {repo.totalCommits.toLocaleString()}
@@ -125,7 +129,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
           <span className="text-[10px] text-[#57606a] mt-0.5 block">Reachable branch HEAD</span>
         </div>
 
-        <div className="p-3.5 bg-[#f6f8fa] border border-[#d0d7de] rounded-md">
+        <div className="stagger-item p-3.5 bg-[#f6f8fa] border border-[#d0d7de] rounded-md" style={{ animationDelay: '150ms' }}>
           <span className="text-[11px] font-medium text-[#57606a] block">Active Days</span>
           <div className="mt-1 text-xl font-bold font-mono text-[#1f2328] tabular-nums">
             {repo.activeDays} <span className="text-xs font-normal text-[#57606a]">days</span>
@@ -133,7 +137,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
           <span className="text-[10px] text-[#57606a] mt-0.5 block">≥1 commit landed</span>
         </div>
 
-        <div className="p-3.5 bg-[#f6f8fa] border border-[#d0d7de] rounded-md">
+        <div className="stagger-item p-3.5 bg-[#f6f8fa] border border-[#d0d7de] rounded-md" style={{ animationDelay: '200ms' }}>
           <span className="text-[11px] font-medium text-[#57606a] block">Contribution Span</span>
           <div className="mt-1 text-xl font-bold font-mono text-[#1f2328] tabular-nums">
             {repo.contributionDurationDays} <span className="text-xs font-normal text-[#57606a]">days</span>
@@ -141,7 +145,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
           <span className="text-[10px] text-[#57606a] mt-0.5 block">First to latest commit</span>
         </div>
 
-        <div className="p-3.5 bg-[#f6f8fa] border border-[#d0d7de] rounded-md">
+        <div className="stagger-item p-3.5 bg-[#f6f8fa] border border-[#d0d7de] rounded-md" style={{ animationDelay: '250ms' }}>
           <span className="text-[11px] font-medium text-[#57606a] block">Lines Added</span>
           <div className="mt-1 text-xl font-bold font-mono text-[#1a7f37] tabular-nums">
             +{repo.linesAdded.toLocaleString()}
@@ -149,7 +153,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
           <span className="text-[10px] text-[#57606a] mt-0.5 block">Insertions recorded</span>
         </div>
 
-        <div className="p-3.5 bg-[#f6f8fa] border border-[#d0d7de] rounded-md">
+        <div className="stagger-item p-3.5 bg-[#f6f8fa] border border-[#d0d7de] rounded-md" style={{ animationDelay: '300ms' }}>
           <span className="text-[11px] font-medium text-[#57606a] block">Lines Deleted</span>
           <div className="mt-1 text-xl font-bold font-mono text-[#cf222e] tabular-nums">
             -{repo.linesDeleted.toLocaleString()}
@@ -157,7 +161,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
           <span className="text-[10px] text-[#57606a] mt-0.5 block">Deletions & cleanups</span>
         </div>
 
-        <div className="p-3.5 bg-[#f6f8fa] border border-[#d0d7de] rounded-md">
+        <div className="stagger-item p-3.5 bg-[#f6f8fa] border border-[#d0d7de] rounded-md" style={{ animationDelay: '350ms' }}>
           <span className="text-[11px] font-medium text-[#57606a] block">Total Lines Changed</span>
           <div className="mt-1 text-xl font-bold font-mono text-[#1f2328] tabular-nums">
             {repo.totalLinesChanged.toLocaleString()}

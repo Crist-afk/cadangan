@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   FileText,
   Download,
@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Repository, Contributor, AnalysisReport } from '../../types';
 import { getClustersWithCounts } from '../../data/mockRepositories';
+import { AnimatedToast } from '../animations/AnimatedToast';
 
 interface ReportsPageProps {
   repo: Repository;
@@ -53,13 +54,12 @@ export const ReportsPage: React.FC<ReportsPageProps> = ({ repo, contributors }) 
   const [reportNotesInput, setReportNotesInput] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastType, setToastType] = useState<'success' | 'error' | 'warning' | 'info'>('success');
   const [copySuccess, setCopySuccess] = useState<boolean>(false);
 
-  const showToast = (msg: string) => {
+  const showToast = (msg: string, type: 'success' | 'error' | 'warning' | 'info' = 'success') => {
     setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage((prev) => (prev === msg ? null : prev));
-    }, 3500);
+    setToastType(type);
   };
 
   const escapeCsvField = (value: string | number | null | undefined): string => {
@@ -635,8 +635,18 @@ ${contributors.map((c) => `| ${c.name} | @${c.login} | ${c.commitCount} | ${c.ac
 
       {/* Full-Screen Report View Modal (View Report) */}
       {isViewingReport && selectedReport && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/40 flex items-center justify-center p-4 sm:p-6 animate-fade-in">
-          <div className="bg-[#ffffff] border border-[#d0d7de] rounded-lg max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+        <div 
+          className="fixed inset-0 z-50 overflow-y-auto bg-black/40 flex items-center justify-center p-4 sm:p-6"
+          style={{
+            animation: 'modal-overlay-enter 200ms ease-out forwards',
+          }}
+        >
+          <div 
+            className="bg-[#ffffff] border border-[#d0d7de] rounded-lg max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden"
+            style={{
+              animation: 'modal-content-enter 220ms ease-out forwards',
+            }}
+          >
             <div className="p-4 border-b border-[#d0d7de] bg-[#f6f8fa] flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <FileText className="w-4 h-4 text-[#1f2328]" />
@@ -763,12 +773,12 @@ ${contributors.map((c) => `| ${c.name} | @${c.login} | ${c.commitCount} | ${c.ac
       )}
 
       {/* Floating Export Feedback Toast */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#1f2328] text-white text-xs px-3.5 py-2.5 rounded-md shadow-lg border border-[#30363d] flex items-center gap-2 animate-fade-in">
-          <CheckCircle2 className="w-4 h-4 text-[#2da44e]" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
+      <AnimatedToast
+        message={toastMessage || ''}
+        type={toastType}
+        isVisible={!!toastMessage}
+        onClose={() => setToastMessage(null)}
+      />
     </div>
   );
 };
