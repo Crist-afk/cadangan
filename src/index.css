@@ -12,3 +12,509 @@
     font-variant-numeric: tabular-nums;
   }
 }
+
+/* ============================================
+   GITCONTRIB MOTION DESIGN SYSTEM
+   ============================================
+   Principles: Fast, Subtle, Precise, Professional
+   Duration: 150ms - 280ms for most transitions
+   Easing: ease-out for enter, ease-in for exit
+   ============================================ */
+
+/* --------------------------------------------
+   PAGE TRANSITIONS
+   -------------------------------------------- */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes page-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.page-enter {
+  animation: page-enter 220ms ease-out forwards;
+}
+
+.page-exit {
+  animation: page-exit 180ms ease-in forwards;
+}
+
+/* --------------------------------------------
+   STAGGER ENTRANCE ANIMATIONS
+   -------------------------------------------- */
+@keyframes stagger-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stagger-item {
+  opacity: 0;
+  animation: stagger-fade-up 240ms ease-out forwards;
+}
+
+.stagger-item:nth-child(1) { animation-delay: 0ms; }
+.stagger-item:nth-child(2) { animation-delay: 50ms; }
+.stagger-item:nth-child(3) { animation-delay: 100ms; }
+.stagger-item:nth-child(4) { animation-delay: 150ms; }
+.stagger-item:nth-child(5) { animation-delay: 200ms; }
+.stagger-item:nth-child(6) { animation-delay: 250ms; }
+.stagger-item:nth-child(7) { animation-delay: 300ms; }
+.stagger-item:nth-child(8) { animation-delay: 350ms; }
+
+/* --------------------------------------------
+   CARD ANIMATIONS
+   -------------------------------------------- */
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-enter {
+  animation: card-enter 200ms ease-out forwards;
+}
+
+/* --------------------------------------------
+   MODAL ANIMATIONS
+   -------------------------------------------- */
+@keyframes modal-overlay-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modal-overlay-exit {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes modal-content-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.98) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes modal-content-exit {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.98) translateY(4px);
+  }
+}
+
+.modal-overlay-enter {
+  animation: modal-overlay-enter 200ms ease-out forwards;
+}
+
+.modal-overlay-exit {
+  animation: modal-overlay-exit 150ms ease-in forwards;
+}
+
+.modal-content-enter {
+  animation: modal-content-enter 220ms ease-out forwards;
+}
+
+.modal-content-exit {
+  animation: modal-content-exit 180ms ease-in forwards;
+}
+
+/* --------------------------------------------
+   DROPDOWN ANIMATIONS
+   -------------------------------------------- */
+@keyframes dropdown-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dropdown-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.dropdown-enter {
+  animation: dropdown-enter 160ms ease-out forwards;
+}
+
+.dropdown-exit {
+  animation: dropdown-exit 120ms ease-in forwards;
+}
+
+/* --------------------------------------------
+   TOAST NOTIFICATION ANIMATIONS
+   -------------------------------------------- */
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toast-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+
+.toast-enter {
+  animation: toast-enter 200ms ease-out forwards;
+}
+
+.toast-exit {
+  animation: toast-exit 150ms ease-in forwards;
+}
+
+/* --------------------------------------------
+   BUTTON MICRO-INTERACTIONS
+   -------------------------------------------- */
+.btn-micro {
+  transition: transform 120ms ease-out, background-color 150ms ease-out, border-color 150ms ease-out, box-shadow 150ms ease-out;
+}
+
+.btn-micro:hover {
+  transform: scale(1.01);
+}
+
+.btn-micro:active {
+  transform: scale(0.98);
+}
+
+/* --------------------------------------------
+   INPUT FOCUS TRANSITIONS
+   -------------------------------------------- */
+.input-smooth {
+  transition: border-color 150ms ease-out, box-shadow 150ms ease-out, background-color 150ms ease-out;
+}
+
+/* --------------------------------------------
+   NAVIGATION ACTIVE STATE
+   -------------------------------------------- */
+.nav-item {
+  transition: color 150ms ease-out, background-color 150ms ease-out, border-color 150ms ease-out;
+}
+
+/* --------------------------------------------
+   SIDEBAR / TAB INDICATOR
+   -------------------------------------------- */
+.tab-indicator {
+  transition: transform 200ms ease-out, width 200ms ease-out, background-color 150ms ease-out;
+}
+
+/* --------------------------------------------
+   PROGRESS BAR SMOOTH
+   -------------------------------------------- */
+.progress-smooth {
+  transition: width 400ms ease-out;
+}
+
+/* --------------------------------------------
+   CHART ANIMATIONS
+   -------------------------------------------- */
+@keyframes chart-bar-grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes chart-line-draw {
+  from {
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes chart-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.chart-bar {
+  transform-origin: bottom;
+  animation: chart-bar-grow 500ms ease-out forwards;
+}
+
+.chart-line {
+  stroke-dasharray: 1000;
+  animation: chart-line-draw 600ms ease-out forwards;
+}
+
+.chart-fade {
+  animation: chart-fade-in 400ms ease-out forwards;
+}
+
+/* --------------------------------------------
+   AUTH TRANSITIONS
+   -------------------------------------------- */
+@keyframes auth-slide-left {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+}
+
+@keyframes auth-slide-right {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.auth-exit-left {
+  animation: auth-slide-left 200ms ease-out forwards;
+}
+
+.auth-enter-right {
+  animation: auth-slide-right 220ms ease-out forwards;
+}
+
+/* --------------------------------------------
+   SUCCESS FEEDBACK
+   -------------------------------------------- */
+@keyframes success-pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.success-pulse {
+  animation: success-pulse 300ms ease-out;
+}
+
+/* --------------------------------------------
+   LOADING SKELETON
+   -------------------------------------------- */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #f6f8fa 25%, #eaeef2 50%, #f6f8fa 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* --------------------------------------------
+   SUBTLE PULSE FOR ACTIVE STATES
+   -------------------------------------------- */
+@keyframes subtle-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.subtle-pulse {
+  animation: subtle-pulse 2s ease-in-out infinite;
+}
+
+/* --------------------------------------------
+   TABLE ROW ANIMATIONS
+   -------------------------------------------- */
+@keyframes table-row-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.table-row-enter {
+  animation: table-row-enter 180ms ease-out forwards;
+}
+
+/* --------------------------------------------
+   FADE IN UTILITY
+   -------------------------------------------- */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fade-in 200ms ease-out forwards;
+}
+
+/* --------------------------------------------
+   SCALE IN UTILITY
+   -------------------------------------------- */
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 200ms ease-out forwards;
+}
+
+/* --------------------------------------------
+   SLIDE IN FROM BOTTOM
+   -------------------------------------------- */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 240ms ease-out forwards;
+}
+
+/* --------------------------------------------
+   REDUCED MOTION SUPPORT
+   -------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .page-enter,
+  .page-exit,
+  .stagger-item,
+  .card-enter,
+  .modal-overlay-enter,
+  .modal-overlay-exit,
+  .modal-content-enter,
+  .modal-content-exit,
+  .dropdown-enter,
+  .dropdown-exit,
+  .toast-enter,
+  .toast-exit,
+  .chart-bar,
+  .chart-line,
+  .chart-fade,
+  .auth-exit-left,
+  .auth-enter-right,
+  .success-pulse,
+  .skeleton-shimmer,
+  .subtle-pulse,
+  .table-row-enter,
+  .animate-fade-in,
+  .animate-scale-in,
+  .animate-slide-up {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* --------------------------------------------
+   SCROLLBAR STYLING
+   -------------------------------------------- */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f6f8fa;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d0d7de;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8c959f;
+}

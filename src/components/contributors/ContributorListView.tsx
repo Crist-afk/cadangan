@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Search, Filter, ArrowUpDown, ChevronRight, GitCommit, FileText, CheckCircle2 } from 'lucide-react';
 import { Contributor, MLCluster } from '../../types';
 import { ML_CLUSTERS, getClustersWithCounts } from '../../data/mockRepositories';
+import { StaggerContainer } from '../animations/StaggerContainer';
 
 interface ContributorListViewProps {
   contributors: Contributor[];

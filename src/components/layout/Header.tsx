@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { Repository } from '../../types';
 import { useAuth } from '../../context/AuthContext';
+import { AnimatedDropdown } from '../animations/AnimatedDropdown';
 
 interface HeaderProps {
   currentTab: string;
@@ -72,6 +73,7 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
 
               {/* Repo Selector Menu */}
+<<<<<<< HEAD
               {showRepoDropdown && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setShowRepoDropdown(false)} />
@@ -117,6 +119,48 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
                 </>
               )}
+=======
+              <AnimatedDropdown
+                isOpen={showRepoDropdown}
+                onClose={() => setShowRepoDropdown(false)}
+                className="absolute left-0 mt-1.5 w-60 bg-white border border-[#e5e7eb] rounded-lg shadow-lg py-1.5 z-50 text-xs"
+              >
+                <div className="px-3 py-1.5 text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider border-b border-[#f3f4f6]">
+                  Pilih Repositori
+                </div>
+                {allRepos.map((r) => (
+                  <button
+                    key={r.id}
+                    type="button"
+                    onClick={() => {
+                      onSelectRepo(r);
+                      setShowRepoDropdown(false);
+                      if (currentTab === 'landing') {
+                        onTabChange('dashboard');
+                      }
+                    }}
+                    className={`w-full text-left px-3 py-2 flex items-center justify-between hover:bg-[#f9fafb] cursor-pointer ${
+                      activeRepo?.id === r.id ? 'font-bold text-[#111827] bg-[#f3f4f6]' : 'text-[#4b5563]'
+                    }`}
+                  >
+                    <span className="truncate">{r.owner}/{r.name}</span>
+                    {activeRepo?.id === r.id && <span className="w-1.5 h-1.5 rounded-full bg-[#167d37]" />}
+                  </button>
+                ))}
+                <div className="border-t border-[#f3f4f6] pt-1 mt-1 px-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowRepoDropdown(false);
+                      onNewAnalysisClick();
+                    }}
+                    className="w-full text-center py-1.5 text-[#167d37] font-semibold hover:bg-[#f0fdf4] rounded transition-colors"
+                  >
+                    + Analisis Repositori Baru
+                  </button>
+                </div>
+              </AnimatedDropdown>
+>>>>>>> 1275c96c29fed675522a325a3651012ddbb95027
             </div>
           </div>
 
@@ -125,7 +169,7 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Beranda */}
             <button
               onClick={() => onTabChange('landing')}
-              className={`px-3 py-1.5 rounded-lg transition-colors font-medium cursor-pointer ${
+              className={`nav-item px-3 py-1.5 rounded-lg font-medium cursor-pointer ${
                 currentTab === 'landing'
                   ? 'bg-[#f3f4f6] text-[#111827] font-semibold'
                   : 'text-[#4b5563] hover:text-[#111827] hover:bg-[#f9fafb]'
@@ -137,7 +181,7 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Dashboard */}
             <button
               onClick={() => onTabChange('dashboard')}
-              className={`px-3.5 py-1.5 rounded-lg transition-colors font-medium cursor-pointer ${
+              className={`nav-item px-3.5 py-1.5 rounded-lg font-medium cursor-pointer ${
                 currentTab === 'dashboard'
                   ? 'bg-[#f3f4f6] text-[#111827] font-semibold'
                   : 'text-[#4b5563] hover:text-[#111827] hover:bg-[#f9fafb]'
@@ -149,7 +193,7 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Kontributor */}
             <button
               onClick={() => onTabChange('contributors')}
-              className={`px-3 py-1.5 rounded-lg transition-colors font-medium cursor-pointer ${
+              className={`nav-item px-3 py-1.5 rounded-lg font-medium cursor-pointer ${
                 currentTab === 'contributors'
                   ? 'bg-[#f3f4f6] text-[#111827] font-semibold'
                   : 'text-[#4b5563] hover:text-[#111827] hover:bg-[#f9fafb]'
@@ -161,7 +205,7 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Pola ML */}
             <button
               onClick={() => onTabChange('ml')}
-              className={`px-3 py-1.5 rounded-lg transition-colors font-medium cursor-pointer ${
+              className={`nav-item px-3 py-1.5 rounded-lg font-medium cursor-pointer ${
                 currentTab === 'ml'
                   ? 'bg-[#f3f4f6] text-[#111827] font-semibold'
                   : 'text-[#4b5563] hover:text-[#111827] hover:bg-[#f9fafb]'
@@ -173,7 +217,7 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Laporan */}
             <button
               onClick={() => onTabChange('reports')}
-              className={`px-3 py-1.5 rounded-lg transition-colors font-medium cursor-pointer ${
+              className={`nav-item px-3 py-1.5 rounded-lg font-medium cursor-pointer ${
                 currentTab === 'reports'
                   ? 'bg-[#f3f4f6] text-[#111827] font-semibold'
                   : 'text-[#4b5563] hover:text-[#111827] hover:bg-[#f9fafb]'
@@ -185,7 +229,7 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Pengaturan */}
             <button
               onClick={() => onTabChange('settings')}
-              className={`px-3 py-1.5 rounded-lg transition-colors font-medium cursor-pointer ${
+              className={`nav-item px-3 py-1.5 rounded-lg font-medium cursor-pointer ${
                 currentTab === 'settings'
                   ? 'bg-[#f3f4f6] text-[#111827] font-semibold'
                   : 'text-[#4b5563] hover:text-[#111827] hover:bg-[#f9fafb]'
@@ -210,34 +254,33 @@ export const Header: React.FC<HeaderProps> = ({
                   />
                 </button>
 
-                {showUserMenu && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setShowUserMenu(false)} />
-                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-[#e5e7eb] py-1.5 z-50 text-xs">
-                      <div className="px-3.5 py-2 border-b border-[#f3f4f6] bg-[#f9fafb]">
-                        <p className="font-bold text-[#111827] truncate">{user.name}</p>
-                        <p className="text-[#6b7280] text-[11px] truncate mt-0.5">{user.email}</p>
-                        <span className="inline-block mt-1.5 text-[10px] font-bold bg-[#dcfce7] text-[#15803d] px-2 py-0.5 rounded-full uppercase">
-                          Role: {user.role}
-                        </span>
-                      </div>
+                <AnimatedDropdown
+                  isOpen={showUserMenu}
+                  onClose={() => setShowUserMenu(false)}
+                  className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-[#e5e7eb] py-1.5 z-50 text-xs"
+                >
+                  <div className="px-3.5 py-2 border-b border-[#f3f4f6] bg-[#f9fafb]">
+                    <p className="font-bold text-[#111827] truncate">{user.name}</p>
+                    <p className="text-[#6b7280] text-[11px] truncate mt-0.5">{user.email}</p>
+                    <span className="inline-block mt-1.5 text-[10px] font-bold bg-[#dcfce7] text-[#15803d] px-2 py-0.5 rounded-full uppercase">
+                      Role: {user.role}
+                    </span>
+                  </div>
 
-                      <div className="border-t border-[#f3f4f6] pt-1">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setShowUserMenu(false);
-                            logout();
-                          }}
-                          className="w-full text-left px-3.5 py-2 text-[#dc2626] hover:bg-[#fef2f2] flex items-center gap-2 font-medium cursor-pointer"
-                        >
-                          <LogOut className="w-3.5 h-3.5 text-[#dc2626]" />
-                          <span>Keluar (Logout)</span>
-                        </button>
-                      </div>
-                    </div>
-                  </>
-                )}
+                  <div className="border-t border-[#f3f4f6] pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        logout();
+                      }}
+                      className="w-full text-left px-3.5 py-2 text-[#dc2626] hover:bg-[#fef2f2] flex items-center gap-2 font-medium cursor-pointer"
+                    >
+                      <LogOut className="w-3.5 h-3.5 text-[#dc2626]" />
+                      <span>Keluar (Logout)</span>
+                    </button>
+                  </div>
+                </AnimatedDropdown>
               </div>
             )}
           </nav>

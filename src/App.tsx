@@ -12,6 +12,7 @@ import { MachineLearningSection } from './components/ml/MachineLearningSection';
 import { ReportsPage } from './components/reports/ReportsPage';
 import { SettingsPage } from './components/settings/SettingsPage';
 import { AdminDashboard } from './components/admin/AdminDashboard';
+<<<<<<< HEAD
 import { Repository, Contributor, User } from './types';
 import {
   isDemoSampleAccount,
@@ -20,6 +21,11 @@ import {
   saveUserWorkspace
 } from './utils/workspaceStorage';
 import { GitBranch } from 'lucide-react';
+=======
+import { PageTransition } from './components/animations/PageTransition';
+import { Repository, Contributor } from './types';
+import { MOCK_REPOSITORIES, MOCK_CONTRIBUTORS } from './data/mockRepositories';
+>>>>>>> 1275c96c29fed675522a325a3651012ddbb95027
 
 function AppContent() {
   const { isAuthenticated, user, isLoading, setAuthNotice } = useAuth();
@@ -192,9 +198,11 @@ function AppContent() {
       <main className="flex-1">
         {/* ADMIN DASHBOARD VIEW (Dedicated Admin Header & 8 Categories) */}
         {isAdmin ? (
-          <AdminDashboard />
+          <PageTransition transitionKey="admin">
+            <AdminDashboard />
+          </PageTransition>
         ) : (
-          <>
+          <PageTransition transitionKey={currentTab}>
             {/* DOSEN & PUBLIC LANDING VIEWS */}
             {currentTab === 'landing' && (
               <LandingPage
@@ -268,7 +276,7 @@ function AppContent() {
                 }}
               />
             )}
-          </>
+          </PageTransition>
         )}
       </main>
 
