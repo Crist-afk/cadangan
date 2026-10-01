@@ -29,12 +29,14 @@ interface AnalysisProgressPageProps {
   repo: Repository;
   onComplete: (analyzedRepo?: Repository, analyzedContributors?: Contributor[]) => void;
   onBackToLanding?: () => void;
+  allowSyntheticData?: boolean;
 }
 
 export const AnalysisProgressPage: React.FC<AnalysisProgressPageProps> = ({
   repo,
   onComplete,
-  onBackToLanding
+  onBackToLanding,
+  allowSyntheticData = false
 }) => {
   const [currentStageIndex, setCurrentStageIndex] = useState<number>(0);
   const [speedMultiplier, setSpeedMultiplier] = useState<number>(1);
@@ -67,7 +69,11 @@ export const AnalysisProgressPage: React.FC<AnalysisProgressPageProps> = ({
   const triggerLiveFetch = async (overrideToken?: string) => {
     const parsed = parseGitHubRepoInput(repo.url);
     if (!parsed) {
-      addLog(`Local repository definition detected. Using built-in Git history model.`);
+      if (allowSyntheticData) {
+        addLog(`Local repository definition detected. Using built-in Git history model.`);
+      } else {
+        addLog(`Repository locator is not a valid GitHub URL. Live GitHub analysis is required.`);
+      }
       return;
     }
 
@@ -165,6 +171,10 @@ export const AnalysisProgressPage: React.FC<AnalysisProgressPageProps> = ({
   };
 
   const handleContinueWithSimulation = () => {
+    if (!allowSyntheticData) {
+      addLog(`Synthetic fallback is disabled for this account. Live GitHub data is required.`);
+      return;
+    }
     // Generate realistic custom repository & contributors so user isn't stuck
     setErrorInfo(null);
     addLog(`Resuming analysis using high-fidelity algorithmic model for ${repo.owner}/${repo.name}...`);
@@ -187,9 +197,13 @@ export const AnalysisProgressPage: React.FC<AnalysisProgressPageProps> = ({
   const handleFinalCompletion = () => {
     if (liveResolvedData) {
       onComplete(liveResolvedData.repo, liveResolvedData.contributors);
-    } else {
-      onComplete(repo, MOCK_CONTRIBUTORS);
+      return;
     }
+    if (allowSyntheticData) {
+      onComplete(repo, MOCK_CONTRIBUTORS);
+      return;
+    }
+    onComplete(repo, []);
   };
 
   const progressPercentage = Math.round(
@@ -302,7 +316,9 @@ export const AnalysisProgressPage: React.FC<AnalysisProgressPageProps> = ({
               </h3>
               <p className="text-xs text-[#57606a] mt-1 leading-relaxed">
                 {errorInfo.isRateLimit
-                  ? 'GitHub limits unauthenticated REST API requests from shared IP addresses to 60 calls per hour. You can provide an optional personal access token (which grants 5,000 calls/hour) or continue with our high-fidelity synthetic model for this repository.'
+                  ? allowSyntheticData
+                    ? 'GitHub limits unauthenticated REST API requests from shared IP addresses to 60 calls per hour. You can provide an optional personal access token (which grants 5,000 calls/hour) or continue with our high-fidelity synthetic model for this repository.'
+                    : 'GitHub membatasi request tanpa token. Masukkan Personal Access Token untuk mengambil histori Git yang sebenarnya. Akun baru tidak diisi data contoh.'
                   : errorInfo.isNotFound
                   ? `GitHub could not find the public repository at "${repo.url}". Check whether the repository is public or if the URL has typos.`
                   : errorInfo.message}
@@ -321,6 +337,7 @@ export const AnalysisProgressPage: React.FC<AnalysisProgressPageProps> = ({
                       <span>{showTokenInput ? 'Hide Token Input' : 'Enter GitHub Personal Access Token'}</span>
                     </button>
 
+                    {allowSyntheticData && (
                     <button
                       type="button"
                       onClick={handleContinueWithSimulation}
@@ -329,6 +346,7 @@ export const AnalysisProgressPage: React.FC<AnalysisProgressPageProps> = ({
                       <Sparkles className="w-3.5 h-3.5 text-[#0969da]" />
                       <span>Continue with High-Fidelity Simulation</span>
                     </button>
+                    )}
                   </>
                 )}
 

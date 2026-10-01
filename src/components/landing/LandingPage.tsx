@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { GitBranch, GitCommit, Search, ArrowRight, Key, Check, Lock, LogIn, UserPlus } from 'lucide-react';
 import { Repository } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import { getStoredGitHubToken, setStoredGitHubToken } from '../../services/githubService';
 
-interface LandingPageProps {
+const EXAMPLE_PUBLIC_REPOS = [
+  { id: 'example-hello-world', owner: 'octocat', name: 'Hello-World', url: 'https://github.com/octocat/Hello-World' },
+  { id: 'example-gitignore', owner: 'github', name: 'gitignore', url: 'https://github.com/github/gitignore' }
+];
   onStartAnalysis: (repoUrl: string) => void;
   presetRepos: Repository[];
   onNavigateToAuth: (view: 'login' | 'register') => void;
@@ -16,7 +19,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onNavigateToAuth
 }) => {
   const { isAuthenticated, setAuthNotice } = useAuth();
-  const [inputUrl, setInputUrl] = useState('https://github.com/gitcontrib-lab/gitcontrib-core');
+  const [inputUrl, setInputUrl] = useState('');
   const [previewTab, setPreviewTab] = useState<'commits' | 'contributors' | 'diffs'>('commits');
   const [showTokenSettings, setShowTokenSettings] = useState(false);
   const [token, setToken] = useState(getStoredGitHubToken());
@@ -128,7 +131,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <div className="mt-3.5 flex flex-col gap-2 text-xs text-[#57606a]">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-medium text-[#1f2328]">Contoh repositori publik:</span>
-                {presetRepos.map((repo) => (
+                {EXAMPLE_PUBLIC_REPOS.map((repo) => (
                   <button
                     type="button"
                     key={repo.id}

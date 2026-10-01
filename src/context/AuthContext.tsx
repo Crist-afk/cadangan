@@ -9,7 +9,7 @@ interface AuthContextType {
   isLoading: boolean;
   authNotice: AuthNotice | null;
   setAuthNotice: (notice: AuthNotice | null) => void;
-  login: (email: string, password: string, rememberMe?: boolean) => Promise<{ success: boolean; notice?: AuthNotice }>;
+  login: (email: string, password: string, rememberMe?: boolean) => Promise<{ success: boolean; notice?: AuthNotice; user?: User }>;
   register: (data: { name: string; email: string; password: string }) => Promise<{ success: boolean; notice?: AuthNotice }>;
   forgotPassword: (email: string) => Promise<{ success: boolean; notice: AuthNotice }>;
   resetPassword: (password: string) => Promise<{ success: boolean; notice: AuthNotice }>;
@@ -51,7 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const login = async (email: string, password: string, rememberMe = true): Promise<{ success: boolean; notice?: AuthNotice }> => {
+  const login = async (email: string, password: string, rememberMe = true): Promise<{ success: boolean; notice?: AuthNotice; user?: User }> => {
     setIsLoading(true);
     setAuthNotice(null);
 
@@ -96,7 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         persistUser(loggedInUser, rememberMe);
         setIsLoading(false);
-        return { success: true };
+        return { success: true, user: loggedInUser };
       }
 
       // Handle backend returned errors
@@ -125,7 +125,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
         persistUser(dosenUser, rememberMe);
         setIsLoading(false);
-        return { success: true };
+        return { success: true, user: dosenUser };
       }
 
       if ((cleanEmail === 'admin@gitcontrib.ac.id' || cleanEmail === 'admin') && (cleanPass === 'admin123' || cleanPass === 'demo123')) {
@@ -142,7 +142,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
         persistUser(adminUser, rememberMe);
         setIsLoading(false);
-        return { success: true };
+        return { success: true, user: adminUser };
       }
 
       // Dynamic account creation for test logins
@@ -161,7 +161,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
         persistUser(dynamicUser, rememberMe);
         setIsLoading(false);
-        return { success: true };
+        return { success: true, user: dynamicUser };
       }
 
       setIsLoading(false);

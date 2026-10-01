@@ -10,11 +10,12 @@ import {
   ShieldAlert,
   Database
 } from 'lucide-react';
+import { User } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 
 interface LoginPageProps {
   initialView?: 'login' | 'register' | 'forgot' | 'reset';
-  onSuccessLogin?: () => void;
+  onSuccessLogin?: (user?: User) => void;
   onNavigateToLanding?: () => void;
 }
 
@@ -52,7 +53,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
     if (authView === 'login') {
       const res = await login(email, password);
       if (res.success && onSuccessLogin) {
-        onSuccessLogin();
+        onSuccessLogin(res.user);
       }
     } else if (authView === 'register') {
       if (password !== confirmPassword) {

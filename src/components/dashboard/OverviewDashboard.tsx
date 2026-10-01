@@ -45,19 +45,10 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
         };
       });
     }
-    return [
-      { week: 'Aug 04', commits: 142, additions: 18200, deletions: 6100 },
-      { week: 'Aug 11', commits: 198, additions: 24500, deletions: 8400 },
-      { week: 'Aug 18', commits: 165, additions: 21000, deletions: 7200 },
-      { week: 'Aug 25', commits: 210, additions: 28900, deletions: 9100 },
-      { week: 'Sep 01', commits: 180, additions: 22400, deletions: 7800 },
-      { week: 'Sep 08', commits: 235, additions: 31200, deletions: 10400 },
-      { week: 'Sep 15', commits: 190, additions: 25100, deletions: 8900 },
-      { week: 'Sep 22', commits: 100, additions: 13220, deletions: 4510 }
-    ];
+    return [];
   }, [contributors]);
 
-  const maxWeeklyCommits = Math.max(...weeklyData.map((w) => w.commits));
+  const maxWeeklyCommits = weeklyData.length > 0 ? Math.max(...weeklyData.map((w) => w.commits), 1) : 1;
 
   return (
     <div className="bg-[#ffffff] min-h-[calc(100vh-3.5rem)] py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">

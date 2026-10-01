@@ -30,7 +30,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [showRepoDropdown, setShowRepoDropdown] = useState(false);
 
   const isAdmin = user?.role === 'admin';
-  const repoDisplayName = activeRepo ? activeRepo.name : 'PBL-Rental';
+  const repoDisplayName = activeRepo ? activeRepo.name : 'Belum ada repositori';
 
   return (
     <header className="border-b border-[#e5e7eb] bg-white sticky top-0 z-30 font-sans">
@@ -79,7 +79,10 @@ export const Header: React.FC<HeaderProps> = ({
                     <div className="px-3 py-1.5 text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider border-b border-[#f3f4f6]">
                       Pilih Repositori
                     </div>
-                    {allRepos.map((r) => (
+                    {allRepos.length === 0 ? (
+                      <p className="px-3 py-2 text-[#6b7280]">Belum ada repositori di akun ini.</p>
+                    ) : (
+                      allRepos.map((r) => (
                       <button
                         key={r.id}
                         type="button"
@@ -97,7 +100,8 @@ export const Header: React.FC<HeaderProps> = ({
                         <span className="truncate">{r.owner}/{r.name}</span>
                         {activeRepo?.id === r.id && <span className="w-1.5 h-1.5 rounded-full bg-[#167d37]" />}
                       </button>
-                    ))}
+                    ))
+                    )}
                     <div className="border-t border-[#f3f4f6] pt-1 mt-1 px-2">
                       <button
                         type="button"

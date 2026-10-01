@@ -5,7 +5,7 @@ import { getStoredGitHubToken, setStoredGitHubToken } from '../../services/githu
 import { useAuth } from '../../context/AuthContext';
 
 interface SettingsPageProps {
-  repo: Repository;
+  repo?: Repository;
   onReanalyze: () => void;
 }
 

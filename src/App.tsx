@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LoginPage } from './components/auth/LoginPage';
 import { Header } from './components/layout/Header';
@@ -12,19 +12,44 @@ import { MachineLearningSection } from './components/ml/MachineLearningSection';
 import { ReportsPage } from './components/reports/ReportsPage';
 import { SettingsPage } from './components/settings/SettingsPage';
 import { AdminDashboard } from './components/admin/AdminDashboard';
-import { Repository, Contributor } from './types';
-import { MOCK_REPOSITORIES, MOCK_CONTRIBUTORS } from './data/mockRepositories';
+import { Repository, Contributor, User } from './types';
+import {
+  isDemoSampleAccount,
+  loadUserWorkspace,
+  resolveActiveRepo,
+  saveUserWorkspace
+} from './utils/workspaceStorage';
+import { GitBranch } from 'lucide-react';
 
 function AppContent() {
   const { isAuthenticated, user, isLoading, setAuthNotice } = useAuth();
-  const [repositories, setRepositories] = useState<Repository[]>(MOCK_REPOSITORIES);
-  const [activeRepo, setActiveRepo] = useState<Repository | null>(MOCK_REPOSITORIES[0]);
-  const [contributors, setContributors] = useState<Contributor[]>(MOCK_CONTRIBUTORS);
+  const [repositories, setRepositories] = useState<Repository[]>([]);
+  const [activeRepo, setActiveRepo] = useState<Repository | null>(null);
+  const [contributors, setContributors] = useState<Contributor[]>([]);
+  const [workspaceReady, setWorkspaceReady] = useState(false);
   
   // Current view tabs: 'landing' | 'auth' | 'pipeline' | 'dashboard' | 'contributors' | 'analysis' | 'ml' | 'reports' | 'settings' | 'admin'
   const [currentTab, setCurrentTab] = useState<string>('landing');
   const [authSubView, setAuthSubView] = useState<'login' | 'register' | 'forgot' | 'reset'>('login');
   const [selectedContributor, setSelectedContributor] = useState<Contributor | null>(null);
+
+  useEffect(() => {
+    setWorkspaceReady(false);
+    const workspace = loadUserWorkspace(user);
+    setRepositories(workspace.repositories);
+    setContributors(workspace.contributors);
+    setActiveRepo(resolveActiveRepo(workspace));
+    setWorkspaceReady(true);
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!user || !workspaceReady) return;
+    saveUserWorkspace(user.id, {
+      repositories,
+      contributors,
+      activeRepoId: activeRepo?.id ?? null
+    });
+  }, [user?.id, workspaceReady, repositories, contributors, activeRepo]);
 
   // Loading spinner
   if (isLoading) {
@@ -49,12 +74,13 @@ function AppContent() {
     return (
       <LoginPage
         initialView={authSubView}
-        onSuccessLogin={() => {
-          if (user?.role === 'admin') {
+        onSuccessLogin={(loggedInUser) => {
+          if (loggedInUser?.role === 'admin') {
             setCurrentTab('admin');
-          } else {
-            setCurrentTab('dashboard');
+            return;
           }
+          const workspace = loadUserWorkspace(loggedInUser ?? user);
+          setCurrentTab(workspace.repositories.length > 0 ? 'dashboard' : 'landing');
         }}
         onNavigateToLanding={() => setCurrentTab('landing')}
       />
@@ -182,12 +208,18 @@ function AppContent() {
               <AnalysisProgressPage
                 key={activeRepo.id}
                 repo={activeRepo}
+                allowSyntheticData={isDemoSampleAccount(user)}
                 onComplete={handlePipelineComplete}
                 onBackToLanding={() => setCurrentTab('landing')}
               />
             )}
 
-            {currentTab === 'dashboard' && activeRepo && (
+            {['dashboard', 'contributors', 'analysis', 'ml', 'reports'].includes(currentTab) &&
+              !(activeRepo && contributors.length > 0) && (
+              <EmptyWorkspacePrompt onAnalyze={() => setCurrentTab('landing')} />
+            )}
+
+            {currentTab === 'dashboard' && activeRepo && contributors.length > 0 && (
               <OverviewDashboard
                 repo={activeRepo}
                 contributors={contributors}
@@ -197,14 +229,14 @@ function AppContent() {
               />
             )}
 
-            {currentTab === 'contributors' && (
+            {currentTab === 'contributors' && contributors.length > 0 && (
               <ContributorListView
                 contributors={contributors}
                 onSelectContributor={(c) => setSelectedContributor(c)}
               />
             )}
 
-            {currentTab === 'analysis' && activeRepo && (
+            {currentTab === 'analysis' && activeRepo && contributors.length > 0 && (
               <DeepActivityAnalysis
                 repo={activeRepo}
                 contributors={contributors}
@@ -212,7 +244,7 @@ function AppContent() {
               />
             )}
 
-            {currentTab === 'ml' && activeRepo && (
+            {currentTab === 'ml' && activeRepo && contributors.length > 0 && (
               <MachineLearningSection
                 repo={activeRepo}
                 contributors={contributors}
@@ -220,17 +252,20 @@ function AppContent() {
               />
             )}
 
-            {currentTab === 'reports' && activeRepo && (
+            {currentTab === 'reports' && activeRepo && contributors.length > 0 && (
               <ReportsPage
                 repo={activeRepo}
                 contributors={contributors}
               />
             )}
 
-            {currentTab === 'settings' && activeRepo && (
+            {currentTab === 'settings' && (
               <SettingsPage
-                repo={activeRepo}
-                onReanalyze={() => setCurrentTab('pipeline')}
+                repo={activeRepo ?? undefined}
+                onReanalyze={() => {
+                  if (activeRepo) setCurrentTab('pipeline');
+                  else setCurrentTab('landing');
+                }}
               />
             )}
           </>
@@ -266,6 +301,27 @@ function AppContent() {
           </div>
         </div>
       </footer>
+    </div>
+  );
+}
+
+function EmptyWorkspacePrompt({ onAnalyze }: { onAnalyze: () => void }) {
+  return (
+    <div className="max-w-xl mx-auto py-20 px-4 text-center">
+      <div className="w-12 h-12 mx-auto mb-4 rounded-md bg-[#dafbe1] text-[#1a7f37] flex items-center justify-center">
+        <GitBranch className="w-6 h-6" />
+      </div>
+      <h2 className="text-lg font-bold text-[#1f2328]">Belum ada data analisis</h2>
+      <p className="mt-2 text-sm text-[#57606a] leading-relaxed">
+        Akun ini masih kosong. Jalankan analisis repositori GitHub untuk mengisi dashboard, daftar kontributor, pola ML, dan laporan.
+      </p>
+      <button
+        type="button"
+        onClick={onAnalyze}
+        className="mt-5 px-4 py-2 bg-[#1a7f37] hover:bg-[#1f883d] text-white text-sm font-semibold rounded-md cursor-pointer"
+      >
+        Analisis repositori
+      </button>
     </div>
   );
 }
